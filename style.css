@@ -24,33 +24,24 @@ h1 { text-align: center; color: #2c3e50; }
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); 
     cursor: grab; 
     user-select: none; 
-    /* Add transition for smoother appearance changes */
-    transition: transform 0.1s ease, box-shadow 0.2s ease, opacity 0.2s ease;
-    /* Ensure hardware acceleration for smoother animations */
-    will-change: transform;
-    /* Prevent flickering during drag */
-    backface-visibility: hidden;
 }
 
 .sortable-item.dragging { 
-    opacity: 0.8; 
     cursor: grabbing; 
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15); 
-    /* Use z-index to keep dragged item above others */
     z-index: 1000; 
-    /* Prevent any unwanted text selection during drag */
-    pointer-events: none;
+    /* No opacity change needed since we're using a placeholder */
 }
 
 .drop-placeholder { 
+    padding: 15px 20px; 
+    margin-bottom: 10px; 
     background-color: rgba(0, 123, 255, 0.1); 
     border: 2px dashed #007bff; 
     border-radius: 5px; 
-    margin-bottom: 10px; 
     box-sizing: border-box; 
     pointer-events: none; 
-    /* Add transition for smoother placeholder movements */
-    transition: all 0.15s ease;
+    color: transparent; /* Hide any text in the placeholder */
 }
 
 /* --- Dialog Modal Styles --- */
