@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-List Drag and Drop Board</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <button id="settings-btn">⚙️ Settings</button>
+    <h1>Project Board</h1>
+
+    <div id="board">
+        <p id="board-message">Loading lists...</p>
+    </div>
+
+    <!-- Edit Item Modal using <dialog> -->
+    <dialog id="edit-modal" class="modal">
+        <h2>Item Details</h2>
+        <div class="modal-field">
+            <label for="modal-title-input">Title</label>
+            <input type="text" id="modal-title-input" readonly>
+        </div>
+        <div class="modal-field">
+            <label for="modal-content-textarea">Content</label>
+            <div id="modal-content-display"></div>
+            <textarea id="modal-content-textarea" class="modal-content-hidden"></textarea>
+        </div>
+        <div id="modal-actions-view" class="modal-actions">
+            <button id="modal-close-btn">Close</button>
+            <button id="modal-edit-btn">Edit</button>
+        </div>
+        <div id="modal-actions-edit" class="modal-actions modal-actions-hidden">
+            <button id="modal-cancel-btn">Cancel</button>
+            <button id="modal-save-btn">Save</button>
+        </div>
+    </dialog>
+
+    <!-- Settings Modal using <dialog> -->
+    <dialog id="settings-modal" class="modal">
+        <!-- CORRECTED: The content for the settings dialog is now here -->
+        <h2>Application Settings</h2>
+        <div class="modal-field">
+            <label for="settings-url-input">Base URL</label>
+            <input type="text" id="settings-url-input" placeholder="https://api.example.com">
+        </div>
+        <div class="modal-field">
+            <label for="settings-user-input">User</label>
+            <input type="text" id="settings-user-input" placeholder="username">
+        </div>
+        <div class="modal-field">
+            <label for="settings-password-input">Password</label>
+            <input type="password" id="settings-password-input">
+        </div>
+        <div class="modal-actions">
+            <button id="settings-close-btn">Close</button>
+            <button id="settings-save-btn">Save</button>
+        </div>
+        <p class="modal-note"><strong>Note:</strong> Settings are saved in your browser's local storage. Do not store sensitive passwords in a real application.</p>
+    </dialog>
+
+    <!-- Libraries and Scripts -->
+    <script src="interact.min.js"></script>
+    <script src="script.js" defer></script>
+</body>
+</html>
