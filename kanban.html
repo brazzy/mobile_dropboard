@@ -19,13 +19,14 @@
         <h2>Item Details</h2>
         <div class="modal-field">
             <label for="modal-title-input">Title</label>
-            <input type="text" id="modal-title-input" readonly>
+            <input type="text" id="modal-title-input" placeholder="Enter task title" readonly>
         </div>
         <div class="modal-field">
             <label for="modal-content-textarea">Content</label>
             <div id="modal-content-display"></div>
-            <textarea id="modal-content-textarea" class="modal-content-hidden"></textarea>
+            <textarea id="modal-content-textarea" class="modal-content-hidden" placeholder="Enter task details here"></textarea>
         </div>
+        <div id="modal-error" class="modal-error" style="display: none; color: red; margin-bottom: 10px;">Title cannot be empty</div>
         <div id="modal-actions-view" class="modal-actions">
             <button id="modal-close-btn">Close</button>
             <button id="modal-edit-btn">Edit</button>

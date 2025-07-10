@@ -44,20 +44,21 @@ function openNewTaskDialog(listId) {
     const titleInput = document.getElementById('modal-title-input');
     const contentTextarea = document.getElementById('modal-content-textarea');
     const contentDisplay = document.getElementById('modal-content-display');
+    const modalError = document.getElementById('modal-error');
     
-    // Set default values for a new task
-    titleInput.value = 'New Task';
-    contentTextarea.value = 'Click to add details.';
-    contentDisplay.innerHTML = '<p>Click to add details.</p>';
+    // Clear any previous values and hide error message
+    titleInput.value = '';
+    contentTextarea.value = '';
+    contentDisplay.innerHTML = '';
+    modalError.style.display = 'none';
     
     // Open in edit mode immediately
     setEditModalState('edit');
     dialog.showModal();
     
-    // Focus and select the title input after a short delay to ensure the modal is visible
+    // Focus on the title input after a short delay to ensure the modal is visible
     setTimeout(() => {
         titleInput.focus();
-        titleInput.select(); // Select the default text for easy replacement
     }, 100);
 }
 
@@ -73,6 +74,10 @@ function initializeEditModal() {
         editModalState.currentEditingItem = item;
         editModalState.isNewTask = false;
         titleInput.value = item.dataset.title || '';
+        
+        // Hide error message when opening an existing task
+        const modalError = document.getElementById('modal-error');
+        modalError.style.display = 'none';
 
         setEditModalState('view');
         dialog.showModal();
@@ -120,6 +125,17 @@ function initializeEditModal() {
     document.getElementById('modal-save-btn').addEventListener('click', () => {
         const title = titleInput.value.trim();
         const content = contentTextarea.value; // No trim on content
+        const modalError = document.getElementById('modal-error');
+        
+        // Validate that title is not empty
+        if (!title) {
+            modalError.style.display = 'block';
+            titleInput.focus();
+            return; // Stop execution and don't save
+        }
+        
+        // Hide error message if it was previously shown
+        modalError.style.display = 'none';
         
         if (editModalState.currentEditingItem) {
             // Editing an existing task

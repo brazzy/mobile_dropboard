@@ -61,6 +61,8 @@ h1 { text-align: center; color: #2c3e50; }
 
 /* --- Edit Dialog Specific Styles --- */
 #edit-modal { max-width: 750px; }
+#modal-save-btn { background-color: #007bff; color: white; }
+#modal-save-btn:hover { background-color: #0069d9; }
 
 /* NEW: Styles for the formatted content display */
 #modal-content-display {
