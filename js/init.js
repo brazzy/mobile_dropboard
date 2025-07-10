@@ -135,13 +135,19 @@ function formatContentToHtml(text) {
 }
 
 // Add Item Logic
-function createNewItemElement() {
+/**
+ * Creates a new task item element
+ * @param {string} title - The title of the task (defaults to 'New Task')
+ * @param {string} content - The content of the task (defaults to 'Click to add details.')
+ * @returns {HTMLElement} - The created task item element
+ */
+function createNewItemElement(title = 'New Task', content = 'Click to add details.') {
     const item = document.createElement('li');
     item.className = 'sortable-item';
     item.dataset.id = `item-${Date.now()}`;
-    item.dataset.title = 'New Task';
-    item.dataset.content = 'Click to add details.';
-    item.textContent = 'New Task';
+    item.dataset.title = title;
+    item.dataset.content = content;
+    item.textContent = title;
     return item;
 }
 
@@ -151,8 +157,9 @@ document.getElementById('board').addEventListener('click', (event) => {
         const targetListId = event.target.dataset.targetList;
         const targetList = document.getElementById(targetListId);
         if (targetList) {
-            const newItem = createNewItemElement();
-            targetList.prepend(newItem);
+            // Instead of immediately creating a new item, open the edit dialog
+            // The list ID is passed to the edit dialog to know where to add the task if saved
+            openNewTaskDialog(targetListId);
         }
     }
 });

@@ -1,5 +1,66 @@
 // editTask.js - Edit task functionality
 
+// Global state for the edit modal
+const editModalState = {
+    currentEditingItem: null,
+    targetListId: null,
+    isNewTask: false
+};
+
+/**
+ * Sets the edit modal state to either view or edit mode
+ * @param {string} mode - Either 'view' or 'edit'
+ */
+function setEditModalState(mode) {
+    const titleInput = document.getElementById('modal-title-input');
+    const contentDisplay = document.getElementById('modal-content-display');
+    const contentTextarea = document.getElementById('modal-content-textarea');
+    const actionsView = document.getElementById('modal-actions-view');
+    const actionsEdit = document.getElementById('modal-actions-edit');
+    
+    const isEdit = mode === 'edit';
+    titleInput.readOnly = !isEdit;
+
+    // Toggle visibility of display div vs textarea
+    contentDisplay.classList.toggle('modal-content-hidden', isEdit);
+    contentTextarea.classList.toggle('modal-content-hidden', !isEdit);
+
+    actionsView.classList.toggle('modal-actions-hidden', isEdit);
+    actionsEdit.classList.toggle('modal-actions-hidden', !isEdit);
+    if (isEdit) contentTextarea.focus();
+}
+
+/**
+ * Opens the task edit dialog for creating a new task
+ * @param {string} listId - The ID of the list where the new task will be added
+ */
+function openNewTaskDialog(listId) {
+    // Store the target list ID and mark as a new task
+    editModalState.targetListId = listId;
+    editModalState.currentEditingItem = null;
+    editModalState.isNewTask = true;
+    
+    const dialog = document.getElementById('edit-modal');
+    const titleInput = document.getElementById('modal-title-input');
+    const contentTextarea = document.getElementById('modal-content-textarea');
+    const contentDisplay = document.getElementById('modal-content-display');
+    
+    // Set default values for a new task
+    titleInput.value = 'New Task';
+    contentTextarea.value = 'Click to add details.';
+    contentDisplay.innerHTML = '<p>Click to add details.</p>';
+    
+    // Open in edit mode immediately
+    setEditModalState('edit');
+    dialog.showModal();
+    
+    // Focus and select the title input after a short delay to ensure the modal is visible
+    setTimeout(() => {
+        titleInput.focus();
+        titleInput.select(); // Select the default text for easy replacement
+    }, 100);
+}
+
 function initializeEditModal() {
     const dialog = document.getElementById('edit-modal');
     const titleInput = document.getElementById('modal-title-input');
@@ -7,23 +68,10 @@ function initializeEditModal() {
     const contentTextarea = document.getElementById('modal-content-textarea');
     const actionsView = document.getElementById('modal-actions-view');
     const actionsEdit = document.getElementById('modal-actions-edit');
-    let currentEditingItem = null;
-
-    function setEditModalState(mode) {
-        const isEdit = mode === 'edit';
-        titleInput.readOnly = !isEdit;
-
-        // Toggle visibility of display div vs textarea
-        contentDisplay.classList.toggle('modal-content-hidden', isEdit);
-        contentTextarea.classList.toggle('modal-content-hidden', !isEdit);
-
-        actionsView.classList.toggle('modal-actions-hidden', isEdit);
-        actionsEdit.classList.toggle('modal-actions-hidden', !isEdit);
-        if (isEdit) contentTextarea.focus();
-    }
 
     async function openAndFetchContent(item) {
-        currentEditingItem = item;
+        editModalState.currentEditingItem = item;
+        editModalState.isNewTask = false;
         titleInput.value = item.dataset.title || '';
 
         setEditModalState('view');
@@ -61,18 +109,50 @@ function initializeEditModal() {
         // When cancelling, revert to view mode without saving
         setEditModalState('view');
         dialog.close();
+        
+        // Reset state after cancelling
+        if (editModalState.isNewTask) {
+            editModalState.targetListId = null;
+            editModalState.isNewTask = false;
+        }
+        editModalState.currentEditingItem = null;
     });
     document.getElementById('modal-save-btn').addEventListener('click', () => {
-        if (currentEditingItem) {
-            const title = titleInput.value.trim();
-            const content = contentTextarea.value; // No trim on content
-            currentEditingItem.dataset.title = title;
-            currentEditingItem.dataset.content = content;
-            currentEditingItem.textContent = title;
+        const title = titleInput.value.trim();
+        const content = contentTextarea.value; // No trim on content
+        
+        if (editModalState.currentEditingItem) {
+            // Editing an existing task
+            editModalState.currentEditingItem.dataset.title = title;
+            editModalState.currentEditingItem.dataset.content = content;
+            editModalState.currentEditingItem.textContent = title;
 
             // Update the display div with the new formatted content before closing
             contentDisplay.innerHTML = formatContentToHtml(content);
-            dialog.close();
+        } else if (editModalState.isNewTask && editModalState.targetListId) {
+            // Creating a new task
+            const targetList = document.getElementById(editModalState.targetListId);
+            if (targetList) {
+                // Create a new item element directly here
+                const item = document.createElement('li');
+                item.className = 'sortable-item';
+                item.dataset.id = `item-${Date.now()}-${Math.random()}`;
+                item.dataset.title = title;
+                item.dataset.content = content;
+                item.dataset.realTitle = `New-${Date.now()}`; // Add a realTitle for consistency
+                item.textContent = title;
+                
+                targetList.prepend(item);
+                
+                // The item will be made draggable by the interact.js library
+                // since it has the 'sortable-item' class
+            }
         }
+        
+        dialog.close();
+        // Reset state after closing
+        editModalState.currentEditingItem = null;
+        editModalState.targetListId = null;
+        editModalState.isNewTask = false;
     });
 }
