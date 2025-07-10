@@ -16,4 +16,10 @@
 # STRUCTURE
 - The application entry point is kanban.html
 - style.css contains the stylesheet
-- script.js contains the application logic 
+- JavaScript code is organized into modular components in the js/ directory:
+  - init.js: Setup, initialization, and helper functions
+  - api.js: Communication with the backend TiddlyWiki server
+  - settings.js: Settings management functionality
+  - dragdrop.js: Drag and drop functionality for task management
+  - editTask.js: Task editing functionality
+  - main.js: Main entry point that initializes all components
