@@ -185,11 +185,128 @@ async function initializeApp() {
     }
 }
 
-// --- Drag and Drop Logic (Unchanged) ---
+// --- Drag and Drop Logic (Fixed to prevent flickering) ---
 let placeholder = null;
-interact('.sortable-item').draggable({ inertia: true, autoScroll: true, listeners: { start(e) { const i=e.target; i.classList.add('dragging'); placeholder=document.createElement('li'); placeholder.className='drop-placeholder'; placeholder.style.height=`${i.offsetHeight}px`; i.parentNode.insertBefore(placeholder,i.nextSibling); }, move: dragMoveListener, end(e) { const i=e.target; i.classList.remove('dragging'); i.style.transform='none'; i.removeAttribute('data-x'); i.removeAttribute('data-y'); if(placeholder&&placeholder.parentNode){placeholder.parentNode.removeChild(placeholder);} placeholder=null; } } });
-function dragMoveListener(e) { const i=e.target,x=(parseFloat(i.getAttribute('data-x'))||0)+e.dx,y=(parseFloat(i.getAttribute('data-y'))||0)+e.dy; i.style.transform=`translate(${x}px, ${y}px)`; i.setAttribute('data-x',x); i.setAttribute('data-y',y); const b=document.elementsFromPoint(e.clientX,e.clientY)[1]; if(!b)return; const z=b.closest('.sortable-list'); if(z){ const h=b.closest('.sortable-item'); if(h&&h!==i){ const r=h.getBoundingClientRect(),m=r.top+r.height/2; if(e.clientY<m){h.parentNode.insertBefore(placeholder,h);}else{h.parentNode.insertBefore(placeholder,h.nextSibling);}}else if(!h){z.appendChild(placeholder);}}}
-interact('.sortable-list').dropzone({ accept: '.sortable-item', listeners: { drop(e) { const d=e.relatedTarget; if(placeholder&&placeholder.parentNode){placeholder.parentNode.replaceChild(d,placeholder);}} } });
+let draggedItem = null;
+
+interact('.sortable-item').draggable({
+    inertia: true,
+    autoScroll: true,
+    // Remove the restriction to parent to allow cross-column dragging
+    
+    listeners: {
+        start(event) {
+            // Store the dragged item reference
+            draggedItem = event.target;
+            
+            // Add dragging class for visual feedback
+            draggedItem.classList.add('dragging');
+            
+            // Create placeholder with same dimensions as the dragged item
+            placeholder = document.createElement('li');
+            placeholder.className = 'drop-placeholder';
+            placeholder.style.height = `${draggedItem.offsetHeight}px`;
+            placeholder.style.width = `${draggedItem.offsetWidth}px`;
+            
+            // Insert placeholder after the dragged item
+            draggedItem.parentNode.insertBefore(placeholder, draggedItem.nextSibling);
+            
+            // Set initial position for smooth dragging
+            draggedItem.setAttribute('data-x', 0);
+            draggedItem.setAttribute('data-y', 0);
+        },
+        move: dragMoveListener,
+        end(event) {
+            const item = event.target;
+            
+            // Remove dragging class
+            item.classList.remove('dragging');
+            
+            // Reset transform and position attributes
+            item.style.transform = 'none';
+            item.removeAttribute('data-x');
+            item.removeAttribute('data-y');
+            
+            // Clean up placeholder
+            if (placeholder && placeholder.parentNode) {
+                placeholder.parentNode.removeChild(placeholder);
+            }
+            placeholder = null;
+            draggedItem = null;
+        }
+    }
+});
+
+function dragMoveListener(event) {
+    const item = event.target;
+    
+    // Calculate new position
+    const x = (parseFloat(item.getAttribute('data-x')) || 0) + event.dx;
+    const y = (parseFloat(item.getAttribute('data-y')) || 0) + event.dy;
+    
+    // Apply transform with hardware acceleration to prevent flickering
+    item.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+    
+    // Store position for next move
+    item.setAttribute('data-x', x);
+    item.setAttribute('data-y', y);
+    
+    // Find all elements under the pointer
+    const elementsUnderPointer = document.elementsFromPoint(event.clientX, event.clientY);
+    
+    // Find the first relevant element that isn't the dragged item or placeholder
+    let targetElement = null;
+    for (const el of elementsUnderPointer) {
+        if (el !== item && el !== placeholder) {
+            targetElement = el;
+            break;
+        }
+    }
+    
+    if (!targetElement) return;
+    
+    // Find the closest list container - could be in a different column
+    const targetList = targetElement.closest('.sortable-list');
+    
+    if (targetList) {
+        // If hovering over another item
+        const targetItem = targetElement.closest('.sortable-item');
+        
+        if (targetItem && targetItem !== item) {
+            const rect = targetItem.getBoundingClientRect();
+            const middleY = rect.top + rect.height / 2;
+            
+            // Only move the placeholder when we cross the middle point of an item
+            // This reduces unnecessary DOM operations that cause flickering
+            if (event.clientY < middleY) {
+                targetItem.parentNode.insertBefore(placeholder, targetItem);
+            } else {
+                targetItem.parentNode.insertBefore(placeholder, targetItem.nextSibling);
+            }
+        } else if (!targetItem) {
+            // If hovering over an empty list area
+            // Only append if we're not already in this list or the placeholder isn't already the last child
+            if (targetList !== placeholder.parentNode || 
+                placeholder !== targetList.lastElementChild) {
+                targetList.appendChild(placeholder);
+            }
+        }
+    }
+}
+interact('.sortable-list').dropzone({
+    accept: '.sortable-item',
+    overlap: 0.75,
+    listeners: {
+        drop(event) {
+            const draggedElement = event.relatedTarget;
+            
+            // Replace placeholder with the dragged element
+            if (placeholder && placeholder.parentNode) {
+                placeholder.parentNode.replaceChild(draggedElement, placeholder);
+            }
+        }
+    }
+});
 
 // --- Add Item Logic (Unchanged) ---
 function createNewItemElement() { const item = document.createElement('li'); item.className = 'sortable-item'; item.dataset.id = `item-${Date.now()}`; item.dataset.title = 'New Task'; item.dataset.content = 'Click to add details.'; item.textContent = 'New Task'; return item; }
