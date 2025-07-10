@@ -61,7 +61,7 @@ async function fetchBoardData() {
             // Strip single quotes from header text if it comes from shorttext
             let headerText = listDetail.shorttext || id.replace('tid/Privat/', '');
             if (listDetail.shorttext) {
-                headerText = headerText.replace(/^'|'$/g, '');
+                headerText = headerText.replace(/\'\'/g, '');
             }
 
             return { header: headerText, items: items };
