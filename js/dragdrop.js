@@ -6,8 +6,25 @@ function initializeDragAndDrop() {
     interact('.sortable-item').draggable({
         inertia: false,  // Disable inertia for more direct control
         autoScroll: true,
+        // Enable touch events explicitly
+        modifiers: [],
+        // Specify which input types to listen for
+        // 'touch' is crucial for mobile devices
+        // 'mouse' is for desktop
+        // 'pen' is for stylus input
+        inputFrom: {
+            allowFrom: '*',  // Allow from any input source
+            enabled: true
+        },
         listeners: {
+            // Enable both mouse and touch events
+            move: true,
+            hold: true,
+            release: true,
             start(event) {
+                // Prevent default to avoid browser handling of touch events
+                event.preventDefault();
+                
                 // Store reference to dragged item
                 draggedItem = event.target;
                 
@@ -44,6 +61,9 @@ function initializeDragAndDrop() {
                 if (!placeholder.id) placeholder.id = draggedItem.getAttribute('data-placeholder-id');
             },
             move(event) {
+                // Prevent default to avoid browser handling of touch events
+                event.preventDefault();
+                
                 if (!draggedItem) return;
                 
                 // Update position
@@ -105,6 +125,9 @@ function initializeDragAndDrop() {
                 }
             },
             end(event) {
+                // Prevent default to avoid browser handling of touch events
+                event.preventDefault();
+                
                 if (!draggedItem) return;
                 
                 // Find the placeholder
