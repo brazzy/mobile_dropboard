@@ -102,14 +102,20 @@ function initializeEditModal() {
         }
     }
 
-    document.getElementById('board').addEventListener('dblclick', (e) => {
+    document.getElementById('board-container').addEventListener('dblclick', (e) => {
         const item = e.target.closest('.sortable-item');
         if (item) openAndFetchContent(item);
     });
 
     dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });
     document.getElementById('modal-edit-btn').addEventListener('click', () => setEditModalState('edit'));
-    document.getElementById('modal-close-btn').addEventListener('click', () => dialog.close());
+    document.getElementById('modal-close-btn').addEventListener('click', () => {
+        dialog.close();
+        // Reset state after closing
+        editModalState.currentEditingItem = null;
+        editModalState.targetListId = null;
+        editModalState.isNewTask = false;
+    });
     document.getElementById('modal-cancel-btn').addEventListener('click', () => {
         // When cancelling, revert to view mode without saving
         setEditModalState('view');
