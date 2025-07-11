@@ -2,17 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multi-List Drag and Drop Board</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mobile Dropboard</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <button id="settings-btn">⚙️ Settings</button>
-    <h1>Project Board</h1>
-
-    <div id="board">
-        <p id="board-message">Loading lists...</p>
+    <h1 id="board-title">Project Board</h1>
+    
+    <div id="board-container">
+        <button id="prev-board" class="board-nav-btn">&lt;</button>
+        <div id="current-board">
+            <p id="board-message">Loading lists...</p>
+        </div>
+        <button id="next-board" class="board-nav-btn">&gt;</button>
     </div>
+    
+    <div id="board-indicator" class="indicator-dots"></div>
 
     <!-- Edit Item Modal using <dialog> -->
     <dialog id="edit-modal" class="modal">
@@ -68,6 +74,7 @@
     <script src="js/settings.js"></script>
     <script src="js/dragdrop.js"></script>
     <script src="js/editTask.js"></script>
+    <script src="js/swipe.js"></script>
     <!-- Main entry point -->
     <script src="js/main.js" defer></script>
 </body>

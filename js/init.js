@@ -4,8 +4,8 @@
  * Initializes the application by fetching board data and rendering it
  */
 async function initializeApp() {
-    const board = document.getElementById('board');
-    board.innerHTML = `<p id="board-message">Loading...</p>`;
+    const currentBoard = document.getElementById('current-board');
+    currentBoard.innerHTML = `<p id="board-message">Loading...</p>`;
     
     try {
         // Show loading message
@@ -19,8 +19,11 @@ async function initializeApp() {
             return;
         }
         
-        // Render the board with the fetched data
-        renderBoard(result.data);
+        // Initialize swipe navigation
+        initializeSwipeNavigation();
+        
+        // Set the boards data for navigation
+        setNavigationBoards(result.data);
         
     } catch (error) {
         document.getElementById('board-message').textContent = `Failed to initialize board: ${error.message}`;
@@ -28,39 +31,7 @@ async function initializeApp() {
     }
 }
 
-/**
- * Renders the board with the provided data
- * @param {Array} boardData - Array of list data objects
- */
-function renderBoard(boardData) {
-    const board = document.getElementById('board');
-    board.innerHTML = ''; // Clear loading message
-
-    boardData.forEach(listData => {
-        const listId = `list-${listData.header.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
-
-        const itemsHTML = listData.items.map(item => `
-            <li class="sortable-item" 
-                data-id="item-${Date.now()}-${Math.random()}" 
-                data-real-title="${escapeHtml(item.realTitle)}"
-                data-title="${escapeHtml(item.displayTitle)}" 
-                data-content="${escapeHtml(item.content)}">
-                ${escapeHtml(item.displayTitle)}
-            </li>
-        `).join('');
-
-        const columnHTML = `
-            <div class="list-column">
-                <div class="list-header">
-                    <h2>${listData.header}</h2>
-                    <button class="add-item-btn" data-target-list="${listId}">+</button>
-                </div>
-                <ul id="${listId}" class="sortable-list">${itemsHTML}</ul>
-            </div>
-        `;
-        board.insertAdjacentHTML('beforeend', columnHTML);
-    });
-}
+// The renderBoard function is now handled by the BoardNavigator class in swipe.js
 
 // Helper functions
 function parseListString(listString) {
@@ -152,7 +123,7 @@ function createNewItemElement(title = 'New Task', content = 'Click to add detail
 }
 
 // Add item click handler
-document.getElementById('board').addEventListener('click', (event) => {
+document.getElementById('board-container').addEventListener('click', (event) => {
     if (event.target.matches('.add-item-btn')) {
         const targetListId = event.target.dataset.targetList;
         const targetList = document.getElementById(targetListId);

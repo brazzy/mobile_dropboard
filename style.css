@@ -4,13 +4,72 @@ body {
     background-color: #f4f4f4;
     color: #333;
     padding: 20px;
+    max-width: 100%;
+    overflow-x: hidden;
+    touch-action: pan-y;
 }
 
-h1 { text-align: center; color: #2c3e50; }
+h1 { text-align: center; color: #2c3e50; margin-bottom: 15px; }
 #settings-btn { position: fixed; top: 20px; right: 20px; padding: 10px 15px; font-size: 1rem; cursor: pointer; background-color: #fff; border: 1px solid #ccc; border-radius: 5px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); z-index: 998; }
-#board { display: flex; gap: 20px; justify-content: space-between; align-items: flex-start; }
+
+/* Mobile board container */
+#board-container { 
+    display: flex; 
+    align-items: stretch; 
+    justify-content: space-between; 
+    width: 100%; 
+    position: relative;
+    min-height: 70vh;
+    touch-action: pan-x;
+}
+
+#current-board {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.board-nav-btn {
+    background-color: rgba(108, 117, 125, 0.8);
+    color: white;
+    border: none;
+    width: 40px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: background-color 0.2s;
+}
+
+.board-nav-btn:hover {
+    background-color: rgba(90, 98, 104, 0.9);
+}
+
+/* Board indicator dots */
+.indicator-dots {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+    gap: 8px;
+}
+
+.indicator-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #ced4da;
+    transition: background-color 0.3s;
+}
+
+.indicator-dot.active {
+    background-color: #007bff;
+}
+
 #board-message { width: 100%; text-align: center; color: #6c757d; font-size: 1.1rem; padding: 40px 20px; background-color: #e9ecef; border-radius: 8px; }
-.list-column { flex: 1; background-color: #e9ecef; border-radius: 8px; padding: 15px; min-height: 300px; }
+.list-column { flex: 1; background-color: #e9ecef; border-radius: 8px; padding: 15px; min-height: 300px; width: 100%; }
 .list-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; margin-bottom: 15px; border-bottom: 2px solid #ced4da; }
 .list-column h2 { margin: 0; font-size: 1.2rem; color: #495057; }
 .add-item-btn { background-color: #6c757d; color: white; border: none; border-radius: 50%; width: 28px; height: 28px; font-size: 1.2rem; line-height: 28px; text-align: center; cursor: pointer; padding: 0; transition: background-color 0.2s ease; }
@@ -47,7 +106,7 @@ h1 { text-align: center; color: #2c3e50; }
 }
 
 /* --- Dialog Modal Styles --- */
-.modal { padding: 25px; border: none; border-radius: 8px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); width: 90%; max-width: 450px; }
+.modal { padding: 20px; border: none; border-radius: 8px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); width: 95%; max-width: 450px; }
 .modal::backdrop { background-color: rgba(0, 0, 0, 0.6); }
 .modal h2 { margin-top: 0; }
 .modal-field { margin-bottom: 15px; }
@@ -60,14 +119,15 @@ h1 { text-align: center; color: #2c3e50; }
 .modal-note { font-size: 0.8rem; color: #6c757d; margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px; }
 
 /* --- Edit Dialog Specific Styles --- */
-#edit-modal { max-width: 750px; }
+#edit-modal { max-width: 95%; }
 #modal-save-btn { background-color: #007bff; color: white; }
 #modal-save-btn:hover { background-color: #0069d9; }
 
 /* NEW: Styles for the formatted content display */
 #modal-content-display {
     width: 100%;
-    min-height: 300px;
+    min-height: 200px;
+    max-height: 50vh;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -77,7 +137,7 @@ h1 { text-align: center; color: #2c3e50; }
     box-sizing: border-box;
     overflow-y: auto;
 }
-#edit-modal #modal-content-textarea { min-height: 300px; }
+#edit-modal #modal-content-textarea { min-height: 200px; max-height: 50vh; }
 
 /* NEW: Styles for generated markdown elements */
 #modal-content-display h1, #modal-content-display h2, #modal-content-display h3, #modal-content-display h4, #modal-content-display h5, #modal-content-display h6 {
