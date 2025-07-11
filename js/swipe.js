@@ -12,7 +12,6 @@ class BoardNavigator {
         this.minSwipeDistance = 50; // Minimum distance to trigger swipe
         this.boardContainer = document.getElementById('board-container');
         this.currentBoard = document.getElementById('current-board');
-        this.boardTitle = document.getElementById('board-title');
         this.boardIndicator = document.getElementById('board-indicator');
         
         // Initialize swipe detection
@@ -95,7 +94,9 @@ class BoardNavigator {
         if (!this.boards.length) return;
         
         const currentBoard = this.boards[this.currentBoardIndex];
-        this.boardTitle.textContent = currentBoard.header;
+        
+        // Update document title for better mobile experience
+        document.title = `${currentBoard.header} - Mobile Dropboard`;
         
         // Clear current board
         this.currentBoard.innerHTML = '';

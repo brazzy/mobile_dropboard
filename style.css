@@ -3,24 +3,46 @@ body {
     line-height: 1.6;
     background-color: #f4f4f4;
     color: #333;
-    padding: 20px;
+    padding: 10px;
     max-width: 100%;
     overflow-x: hidden;
     touch-action: pan-y;
+    margin: 0;
 }
 
-h1 { text-align: center; color: #2c3e50; margin-bottom: 15px; }
-#settings-btn { position: fixed; top: 20px; right: 20px; padding: 10px 15px; font-size: 1rem; cursor: pointer; background-color: #fff; border: 1px solid #ccc; border-radius: 5px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); z-index: 998; }
+/* Header styles */
+#app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+#settings-btn {
+    padding: 10px 15px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
 
 /* Mobile board container */
 #board-container { 
     display: flex; 
     align-items: stretch; 
-    justify-content: space-between; 
     width: 100%; 
     position: relative;
     min-height: 70vh;
     touch-action: pan-x;
+    padding: 0 5px;
 }
 
 #current-board {
@@ -35,12 +57,13 @@ h1 { text-align: center; color: #2c3e50; margin-bottom: 15px; }
     color: white;
     border: none;
     width: 40px;
+    height: 40px;
     font-size: 1.5rem;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 10;
+    border-radius: 5px;
     transition: background-color 0.2s;
 }
 
@@ -69,7 +92,16 @@ h1 { text-align: center; color: #2c3e50; margin-bottom: 15px; }
 }
 
 #board-message { width: 100%; text-align: center; color: #6c757d; font-size: 1.1rem; padding: 40px 20px; background-color: #e9ecef; border-radius: 8px; }
-.list-column { flex: 1; background-color: #e9ecef; border-radius: 8px; padding: 15px; min-height: 300px; width: 100%; }
+.list-column { 
+    flex: 1; 
+    background-color: #e9ecef; 
+    border-radius: 8px; 
+    padding: 15px; 
+    min-height: 300px; 
+    width: 100%; 
+    margin: 0;
+    box-sizing: border-box;
+}
 .list-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; margin-bottom: 15px; border-bottom: 2px solid #ced4da; }
 .list-column h2 { margin: 0; font-size: 1.2rem; color: #495057; }
 .add-item-btn { background-color: #6c757d; color: white; border: none; border-radius: 50%; width: 28px; height: 28px; font-size: 1.2rem; line-height: 28px; text-align: center; cursor: pointer; padding: 0; transition: background-color 0.2s ease; }
