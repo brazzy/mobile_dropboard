@@ -1,49 +1,46 @@
-// dragdrop.js - Drag and drop functionality
+// dragdrop.js - Drag and drop functionality with left-side-only dragging
 
 let draggedItem = null;
 
+/**
+ * Initializes the drag and drop functionality
+ * Only the left half of each task is draggable
+ */
 function initializeDragAndDrop() {
-    interact('.sortable-item').draggable({
-        inertia: false,  // Disable inertia for more direct control
+    // First, add drag handles to all sortable items
+    addDragHandlesToItems();
+    
+    // Set up a mutation observer to add drag handles to new items
+    setupMutationObserver();
+    
+    // Initialize interact.js with the drag handle selector
+    interact('.drag-handle').draggable({
+        inertia: false,
         autoScroll: true,
-        // Enable touch events explicitly
         modifiers: [],
-        // Specify which input types to listen for
-        // 'touch' is crucial for mobile devices
-        // 'mouse' is for desktop
-        // 'pen' is for stylus input
-        inputFrom: {
-            allowFrom: '*',  // Allow from any input source
-            enabled: true
-        },
+        // Ensure we only handle events on the drag handle
+        allowFrom: '.drag-handle',
         listeners: {
-            // Enable both mouse and touch events
-            move: true,
-            hold: true,
-            release: true,
             start(event) {
-                // Prevent default to avoid browser handling of touch events
+                // Prevent default to avoid browser handling
                 event.preventDefault();
                 
-                // Store reference to dragged item
-                draggedItem = event.target;
+                // Get the parent sortable item
+                draggedItem = event.target.closest('.sortable-item');
+                if (!draggedItem) return;
                 
                 // Add visual feedback
                 draggedItem.classList.add('dragging');
                 
-                // Create a clone that stays in place to show where the item was
-                const placeholder = draggedItem.cloneNode(true);
+                // Create a placeholder that stays in place to show where the item was
+                const placeholder = document.createElement('div');
                 placeholder.classList.add('drop-placeholder');
-                placeholder.classList.remove('dragging', 'sortable-item');
-                placeholder.removeAttribute('data-x');
-                placeholder.removeAttribute('data-y');
-                placeholder.style.transform = '';
+                placeholder.style.height = `${draggedItem.offsetHeight}px`;
                 
                 // Insert placeholder where the item was
                 draggedItem.parentNode.insertBefore(placeholder, draggedItem);
                 
                 // Move the actual item to the end of the document body for absolute positioning
-                // This prevents layout shifts that cause flickering
                 document.body.appendChild(draggedItem);
                 
                 // Set initial position
@@ -61,7 +58,7 @@ function initializeDragAndDrop() {
                 if (!placeholder.id) placeholder.id = draggedItem.getAttribute('data-placeholder-id');
             },
             move(event) {
-                // Prevent default to avoid browser handling of touch events
+                // Prevent default to avoid browser handling
                 event.preventDefault();
                 
                 if (!draggedItem) return;
@@ -125,7 +122,7 @@ function initializeDragAndDrop() {
                 }
             },
             end(event) {
-                // Prevent default to avoid browser handling of touch events
+                // Prevent default to avoid browser handling
                 event.preventDefault();
                 
                 if (!draggedItem) return;
@@ -155,3 +152,74 @@ function initializeDragAndDrop() {
         }
     });
 }
+
+/**
+ * Adds drag handles to all sortable items
+ */
+function addDragHandlesToItems() {
+    document.querySelectorAll('.sortable-item').forEach(item => {
+        // Only add if it doesn't already have a drag handle
+        if (!item.querySelector('.drag-handle')) {
+            addDragHandleToItem(item);
+        }
+    });
+}
+
+/**
+ * Adds a drag handle to a single sortable item
+ * @param {HTMLElement} item - The sortable item element
+ */
+function addDragHandleToItem(item) {
+    // Skip if this item already has our structure
+    if (item.querySelector('.drag-handle') || item.querySelector('.scroll-area')) {
+        return;
+    }
+    
+    // Create a drag handle that covers the left half of the item
+    const dragHandle = document.createElement('div');
+    dragHandle.className = 'drag-handle';
+    
+    // Create a scroll area for the right half
+    const scrollArea = document.createElement('div');
+    scrollArea.className = 'scroll-area';
+    
+    // Clone the content instead of moving it directly
+    // This preserves any event listeners attached to the content
+    const content = item.innerHTML;
+    item.innerHTML = '';
+    scrollArea.innerHTML = content;
+    
+    // Add the drag handle and scroll area to the item
+    item.appendChild(dragHandle);
+    item.appendChild(scrollArea);
+}
+
+/**
+ * Sets up a mutation observer to add drag handles to new items
+ */
+function setupMutationObserver() {
+    const observer = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+            if (mutation.type === 'childList') {
+                mutation.addedNodes.forEach(node => {
+                    if (node.nodeType === 1) { // Element node
+                        // Check if the added node is a sortable item
+                        if (node.classList && node.classList.contains('sortable-item')) {
+                            addDragHandleToItem(node);
+                        }
+                        
+                        // Check for sortable items within the added node
+                        const sortableItems = node.querySelectorAll ? node.querySelectorAll('.sortable-item') : [];
+                        sortableItems.forEach(item => {
+                            addDragHandleToItem(item);
+                        });
+                    }
+                });
+            }
+        });
+    });
+    
+    // Start observing the document body for added nodes
+    observer.observe(document.body, { childList: true, subtree: true });
+}
+
