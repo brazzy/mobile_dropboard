@@ -179,19 +179,43 @@ function addDragHandleToItem(item) {
     const dragHandle = document.createElement('div');
     dragHandle.className = 'drag-handle';
     
-    // Create a scroll area for the right half
-    const scrollArea = document.createElement('div');
-    scrollArea.className = 'scroll-area';
+    // Create a content wrapper that spans the full width
+    const contentWrapper = document.createElement('div');
+    contentWrapper.className = 'content-wrapper';
     
     // Clone the content instead of moving it directly
     // This preserves any event listeners attached to the content
     const content = item.innerHTML;
     item.innerHTML = '';
-    scrollArea.innerHTML = content;
+    contentWrapper.innerHTML = content;
     
-    // Add the drag handle and scroll area to the item
+    // Add the drag handle and content wrapper to the item
     item.appendChild(dragHandle);
-    item.appendChild(scrollArea);
+    item.appendChild(contentWrapper);
+    
+    // Make sure the item height adjusts to content
+    // Set a small timeout to let the browser render the content first
+    setTimeout(() => {
+        // Get the content height
+        const contentHeight = contentWrapper.offsetHeight;
+        if (contentHeight > 0) {
+            // Make sure the item is at least as tall as its content
+            item.style.minHeight = contentHeight + 'px';
+        }
+        
+        // Also handle dynamic content changes
+        const resizeObserver = new ResizeObserver(entries => {
+            for (let entry of entries) {
+                const newContentHeight = contentWrapper.offsetHeight;
+                if (newContentHeight > 0) {
+                    item.style.minHeight = newContentHeight + 'px';
+                }
+            }
+        });
+        
+        // Start observing the content wrapper
+        resizeObserver.observe(contentWrapper);
+    }, 50);
 }
 
 /**

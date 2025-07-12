@@ -107,7 +107,7 @@ body {
 .add-item-btn:hover { background-color: #5a6268; }
 .sortable-list { list-style: none; padding: 0; margin: 0; min-height: 100px; border-radius: 4px; }
 .sortable-item { 
-    padding: 0; /* No padding as content is in the scroll area */
+    padding: 0; /* No padding as content is in the content wrapper */
     margin-bottom: 10px; 
     background-color: #fff; 
     border-radius: 5px; 
@@ -117,6 +117,9 @@ body {
     -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
     position: relative; /* Needed for absolute positioning of the drag handle */
     min-height: 50px; /* Ensure minimum height */
+    display: flex; /* Use flexbox for layout */
+    flex-direction: column; /* Stack children vertically */
+    overflow: hidden; /* Ensure content doesn't overflow */
 }
 
 .sortable-item.dragging { 
@@ -131,7 +134,7 @@ body {
     position: absolute;
     top: 0;
     left: 0;
-    width: 50%; /* Takes up the left half of the item */
+    width: 30%; /* Takes up only 30% of the item width */
     height: 100%;
     cursor: grab; /* Show grab cursor on the handle */
     touch-action: none; /* Disable touch actions on the handle */
@@ -140,19 +143,30 @@ body {
     border-bottom-left-radius: 5px; /* Match the item's border radius */
 }
 
-/* Scroll area styles */
+/* We're not using scroll-area anymore */
 .scroll-area {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 50%;
-    height: 100%;
-    padding: 15px;
+    display: none;
+}
+
+/* Content wrapper styles */
+.content-wrapper {
+    width: 100%;
+    padding: 15px 20px 15px 40px; /* Extra left padding to avoid text under the drag handle */
     box-sizing: border-box;
-    overflow-y: auto;
-    touch-action: pan-y;
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    min-height: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Ensure content in wrapper uses full width */
+.content-wrapper * {
+    width: 100%;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    margin: 0; /* Reset margins to avoid extra space */
 }
 
 .drop-placeholder { 
