@@ -40,8 +40,9 @@ body {
     width: 100%; 
     position: relative;
     min-height: 70vh;
-    touch-action: pan-x;
+    touch-action: pan-x pan-y; /* Allow both horizontal and vertical scrolling */
     box-sizing: border-box;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }
 
 #current-board {
@@ -100,12 +101,24 @@ body {
     width: 100%; 
     margin: 0;
     box-sizing: border-box;
+    overflow-y: auto; /* Allow vertical scrolling */
+    touch-action: pan-y; /* Enable vertical touch scrolling */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }
 .list-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; margin-bottom: 15px; border-bottom: 2px solid #ced4da; }
 .list-column h2 { margin: 0; font-size: 1.2rem; color: #495057; }
 .add-item-btn { background-color: #6c757d; color: white; border: none; border-radius: 50%; width: 28px; height: 28px; font-size: 1.2rem; line-height: 28px; text-align: center; cursor: pointer; padding: 0; transition: background-color 0.2s ease; }
 .add-item-btn:hover { background-color: #5a6268; }
-.sortable-list { list-style: none; padding: 0; margin: 0; min-height: 100px; border-radius: 4px; }
+.sortable-list { 
+    list-style: none; 
+    padding: 0; 
+    margin: 0; 
+    min-height: 100px; 
+    border-radius: 4px;
+    touch-action: pan-y; /* Enable vertical touch scrolling */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    overflow-y: auto; /* Allow vertical scrolling */
+}
 .sortable-item { 
     padding: 0; /* No padding as content is in the content wrapper */
     margin-bottom: 10px; 
@@ -119,7 +132,8 @@ body {
     min-height: 50px; /* Ensure minimum height */
     display: flex; /* Use flexbox for layout */
     flex-direction: column; /* Stack children vertically */
-    overflow: hidden; /* Ensure content doesn't overflow */
+    overflow: visible; /* Allow content to be visible and scrollable */
+    touch-action: auto; /* Enable all touch actions by default */
 }
 
 .sortable-item.dragging { 
@@ -159,6 +173,10 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    touch-action: auto; /* Enable all touch actions */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    overflow: auto; /* Allow scrolling when content overflows */
+    max-height: none; /* No max height restriction */
 }
 
 /* Ensure content in wrapper uses full width */
