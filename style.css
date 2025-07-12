@@ -3,7 +3,6 @@ body {
     line-height: 1.6;
     background-color: #f4f4f4;
     color: #333;
-    padding: 10px;
     max-width: 100%;
     overflow-x: hidden;
     touch-action: pan-y;
@@ -42,7 +41,7 @@ body {
     position: relative;
     min-height: 70vh;
     touch-action: pan-x;
-    padding: 0 5px;
+    box-sizing: border-box;
 }
 
 #current-board {
