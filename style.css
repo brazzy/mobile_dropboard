@@ -23,7 +23,7 @@ body {
     z-index: 100;
 }
 
-#settings-btn {
+#settings-btn, .column-selector-btn {
     padding: 10px 15px;
     font-size: 1.2rem;
     cursor: pointer;
@@ -31,6 +31,65 @@ body {
     border: 1px solid #ccc;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Column selector styles */
+.column-selector-btn {
+    position: relative;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+/* Dropzone states */
+.column-selector-btn.drop-active {
+    border-color: #aaa;
+    background-color: #f8f8f8;
+}
+
+.column-selector-btn.highlight,
+.column-selector-btn.drop-target {
+    background-color: #e7f3ff;
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.column-selector-dropdown {
+    display: none;
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    width: max-content;
+    min-width: 150px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.column-selector-dropdown.active {
+    display: block;
+}
+
+.column-selector-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s;
+    user-select: none;
+}
+
+.column-selector-item:last-child {
+    border-bottom: none;
+}
+
+.column-selector-item:hover,
+.column-selector-item.drop-target {
+    background-color: #e7f3ff;
+}
+
+.column-selector-item.drop-active {
+    background-color: #f0f0f0;
 }
 
 /* Mobile board container */

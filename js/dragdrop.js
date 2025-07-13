@@ -20,6 +20,8 @@ function initializeDragAndDrop() {
         modifiers: [],
         // Ensure we only handle events on the drag handle
         allowFrom: '.drag-handle',
+        // Important: This makes the element available for dropping on dropzones
+        dropzone: true,
         listeners: {
             start(event) {
                 // Prevent default to avoid browser handling
@@ -31,6 +33,9 @@ function initializeDragAndDrop() {
                 
                 // Add visual feedback
                 draggedItem.classList.add('dragging');
+                
+                // Dispatch custom event for column selector integration
+                document.dispatchEvent(new CustomEvent('taskDragStart', { detail: { item: draggedItem } }));
                 
                 // Create a placeholder that stays in place to show where the item was
                 const placeholder = document.createElement('div');
@@ -74,6 +79,15 @@ function initializeDragAndDrop() {
                 // Store position
                 draggedItem.setAttribute('data-x', x);
                 draggedItem.setAttribute('data-y', y);
+                
+                // Dispatch custom event for column selector integration
+                document.dispatchEvent(new CustomEvent('taskDragMove', { 
+                    detail: { 
+                        item: draggedItem,
+                        clientX: event.clientX,
+                        clientY: event.clientY 
+                    } 
+                }));
                 
                 // Find the list and position where we should move the placeholder
                 const elementsUnder = document.elementsFromPoint(event.clientX, event.clientY);
@@ -126,6 +140,9 @@ function initializeDragAndDrop() {
                 event.preventDefault();
                 
                 if (!draggedItem) return;
+                
+                // Dispatch custom event for column selector integration
+                document.dispatchEvent(new CustomEvent('taskDragEnd', { detail: { item: draggedItem } }));
                 
                 // Find the placeholder
                 const placeholder = document.getElementById(draggedItem.getAttribute('data-placeholder-id'));
