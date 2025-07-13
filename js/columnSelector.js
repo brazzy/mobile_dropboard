@@ -127,9 +127,31 @@ function handleDragMove(clientX, clientY) {
                             }
                         }
                     };
+                    
+                    // Handle drop event (when user releases mouse button anywhere)
+                    item.ondrop = function(e) {
+                        e.preventDefault();
+                        if (isDragging && draggedTask) {
+                            const boardIndex = parseInt(item.dataset.boardIndex);
+                            if (!isNaN(boardIndex)) {
+                                console.log('Task dropped on column title:', boardIndex);
+                                moveTaskToBoard(draggedTask, boardIndex);
+                                toggleDropdown(false);
+                                isDragging = false;
+                                draggedTask = null;
+                            }
+                        }
+                    };
+                    
+                    // Allow drop
+                    item.ondragover = function(e) {
+                        e.preventDefault();
+                    };
                 } else {
                     item.classList.remove('drop-target');
                     item.onmouseup = null;
+                    item.ondrop = null;
+                    item.ondragover = null;
                 }
             });
         }
@@ -188,6 +210,10 @@ function showDropdown() {
         item.textContent = board.header;
         item.dataset.boardIndex = index;
         
+        // Make the item a proper drop target
+        item.setAttribute('draggable', 'false');
+        item.setAttribute('data-droppable', 'true');
+        
         columnDropdown.appendChild(item);
         console.log('Added board to dropdown:', board.header, 'index:', index);
     });
@@ -220,6 +246,8 @@ function hideDropdown() {
     const items = columnDropdown.querySelectorAll('.column-selector-item');
     items.forEach(item => {
         item.onmouseup = null;
+        item.ondrop = null;
+        item.ondragover = null;
         item.classList.remove('drop-target');
     });
 }
@@ -268,14 +296,14 @@ function moveTaskToBoard(task, targetBoardIndex) {
         return;
     }
     
-    // Add task to the beginning of target board's items array
+    // Add task to the beginning of target board's items array (at the top)
     targetBoard.items.unshift({
         realTitle: taskRealTitle || `item-${Date.now()}`,
         displayTitle: taskTitle || 'Moved Task',
         content: taskContent || ''
     });
     
-    console.log('Task added to board', targetBoard.header);
+    console.log('Task added to the top of board', targetBoard.header);
     
     // Update the current board's task order in the data structure
     // This ensures we capture any drag-and-drop reordering that happened before the move

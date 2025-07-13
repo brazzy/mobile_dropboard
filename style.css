@@ -83,9 +83,16 @@ body {
     border-bottom: none;
 }
 
-.column-selector-item:hover,
-.column-selector-item.drop-target {
+.column-selector-item:hover {
     background-color: #e7f3ff;
+}
+
+.column-selector-item.drop-target {
+    background-color: #cce5ff;
+    border: 2px dashed #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    transform: scale(1.03);
+    transition: all 0.2s ease;
 }
 
 .column-selector-item.drop-active {

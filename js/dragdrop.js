@@ -141,33 +141,56 @@ function initializeDragAndDrop() {
                 
                 if (!draggedItem) return;
                 
+                // Check if we're dropping on a column selector item
+                const elementsUnder = document.elementsFromPoint(event.clientX, event.clientY);
+                let droppedOnColumnItem = false;
+                
+                for (const el of elementsUnder) {
+                    if (el.classList && el.classList.contains('column-selector-item')) {
+                        // We're dropping on a column selector item
+                        droppedOnColumnItem = true;
+                        
+                        // Trigger the drop event on the column selector item
+                        const dropEvent = new Event('drop');
+                        el.dispatchEvent(dropEvent);
+                        
+                        // We'll let the column selector handle the drop, so we don't need to do anything else here
+                        break;
+                    }
+                }
+                
                 // Dispatch custom event for column selector integration
                 document.dispatchEvent(new CustomEvent('taskDragEnd', { detail: { item: draggedItem } }));
                 
-                // Find the placeholder
-                const placeholder = document.getElementById(draggedItem.getAttribute('data-placeholder-id'));
-                if (placeholder && placeholder.parentNode) {
-                    // Move the real item back to the DOM where the placeholder is
-                    draggedItem.style.position = '';
-                    draggedItem.style.zIndex = '';
-                    draggedItem.style.width = '';
-                    draggedItem.style.left = '';
-                    draggedItem.style.top = '';
-                    draggedItem.style.transform = '';
-                    draggedItem.classList.remove('dragging');
-                    
-                    // Replace placeholder with the real item
-                    placeholder.parentNode.replaceChild(draggedItem, placeholder);
-                    
-                    // Update the data structure to reflect the new order
-                    updateTaskOrderInDataStructure();
+                // If we didn't drop on a column selector item, handle the drop normally
+                if (!droppedOnColumnItem) {
+                    // Find the placeholder
+                    const placeholder = document.getElementById(draggedItem.getAttribute('data-placeholder-id'));
+                    if (placeholder && placeholder.parentNode) {
+                        // Move the real item back to the DOM where the placeholder is
+                        draggedItem.style.position = '';
+                        draggedItem.style.zIndex = '';
+                        draggedItem.style.width = '';
+                        draggedItem.style.left = '';
+                        draggedItem.style.top = '';
+                        draggedItem.style.transform = '';
+                        draggedItem.classList.remove('dragging');
+                        
+                        // Replace placeholder with the real item
+                        placeholder.parentNode.replaceChild(draggedItem, placeholder);
+                        
+                        // Update the data structure to reflect the new order
+                        updateTaskOrderInDataStructure();
+                    }
                 }
                 
                 // Clean up
-                draggedItem.removeAttribute('data-x');
-                draggedItem.removeAttribute('data-y');
-                draggedItem.removeAttribute('data-placeholder-id');
-                draggedItem = null;
+                if (draggedItem) {
+                    draggedItem.removeAttribute('data-x');
+                    draggedItem.removeAttribute('data-y');
+                    draggedItem.removeAttribute('data-placeholder-id');
+                    draggedItem = null;
+                }
             }
         }
     });
