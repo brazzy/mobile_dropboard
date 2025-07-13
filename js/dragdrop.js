@@ -158,6 +158,9 @@ function initializeDragAndDrop() {
                     
                     // Replace placeholder with the real item
                     placeholder.parentNode.replaceChild(draggedItem, placeholder);
+                    
+                    // Update the data structure to reflect the new order
+                    updateTaskOrderInDataStructure();
                 }
                 
                 // Clean up
@@ -262,5 +265,56 @@ function setupMutationObserver() {
     
     // Start observing the document body for added nodes
     observer.observe(document.body, { childList: true, subtree: true });
+}
+
+/**
+ * Updates the data structure to reflect the new order of tasks after drag and drop
+ * This ensures the order persists when switching between columns
+ */
+function updateTaskOrderInDataStructure() {
+    // Check if boardNavigator exists and is properly initialized
+    if (typeof boardNavigator === 'undefined' || !boardNavigator.boards || !boardNavigator.boards.length) {
+        console.error('Board navigator not available for updating task order');
+        return;
+    }
+    
+    // Get the current board index
+    const currentBoardIndex = boardNavigator.currentBoardIndex;
+    if (currentBoardIndex < 0 || currentBoardIndex >= boardNavigator.boards.length) {
+        console.error('Invalid board index');
+        return;
+    }
+    
+    // Get the current board
+    const currentBoard = boardNavigator.boards[currentBoardIndex];
+    
+    // Get the sortable list element that contains the tasks
+    const sortableList = document.querySelector('.sortable-list');
+    if (!sortableList) {
+        console.error('Sortable list not found');
+        return;
+    }
+    
+    // Get all task items in their current order
+    const taskItems = Array.from(sortableList.querySelectorAll('.sortable-item'));
+    
+    // Create a new array to hold the reordered tasks
+    const reorderedTasks = taskItems.map(item => {
+        // Find the corresponding task in the original data
+        const realTitle = item.dataset.realTitle;
+        const displayTitle = item.dataset.title;
+        const content = item.dataset.content;
+        
+        return {
+            realTitle: realTitle,
+            displayTitle: displayTitle,
+            content: content
+        };
+    });
+    
+    // Update the board's items array with the new order
+    currentBoard.items = reorderedTasks;
+    
+    console.log('Task order updated in data structure for board:', currentBoard.header);
 }
 

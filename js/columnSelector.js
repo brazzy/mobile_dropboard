@@ -248,7 +248,17 @@ function moveTaskToBoard(task, targetBoardIndex) {
     
     console.log('Task data:', { title: taskTitle, realTitle: taskRealTitle });
     
-    // Remove task from current board
+    // Get the current board index
+    const currentBoardIndex = boardNavigator.currentBoardIndex;
+    
+    // Remove task from current board's data structure
+    if (currentBoardIndex >= 0 && currentBoardIndex < boardNavigator.boards.length) {
+        const currentBoard = boardNavigator.boards[currentBoardIndex];
+        // Filter out the task being moved from the current board's items
+        currentBoard.items = currentBoard.items.filter(item => item.realTitle !== taskRealTitle);
+    }
+    
+    // Remove task from DOM
     task.remove();
     
     // Get target board
@@ -266,6 +276,15 @@ function moveTaskToBoard(task, targetBoardIndex) {
     });
     
     console.log('Task added to board', targetBoard.header);
+    
+    // Update the current board's task order in the data structure
+    // This ensures we capture any drag-and-drop reordering that happened before the move
+    if (currentBoardIndex >= 0 && currentBoardIndex < boardNavigator.boards.length) {
+        // Only update if we're still on the source board
+        if (boardNavigator.currentBoardIndex === currentBoardIndex) {
+            updateTaskOrderInDataStructure();
+        }
+    }
     
     // If the target board is currently displayed, refresh it
     if (boardNavigator.currentBoardIndex === targetBoardIndex) {
