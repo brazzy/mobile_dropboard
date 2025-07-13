@@ -145,6 +145,20 @@ function initializeDragAndDrop() {
                 const elementsUnder = document.elementsFromPoint(event.clientX, event.clientY);
                 let droppedOnColumnItem = false;
                 
+                // Get the placeholder and its position information before removing it
+                const placeholder = document.getElementById(draggedItem.getAttribute('data-placeholder-id'));
+                let placeholderNextSibling = null;
+                let placeholderParent = null;
+                
+                if (placeholder && placeholder.parentNode) {
+                    // Store the placeholder's position information
+                    placeholderNextSibling = placeholder.nextElementSibling;
+                    placeholderParent = placeholder.parentNode;
+                    
+                    // Now remove the placeholder
+                    placeholder.remove();
+                }
+                
                 for (const el of elementsUnder) {
                     if (el.classList && el.classList.contains('column-selector-item')) {
                         // We're dropping on a column selector item
@@ -164,24 +178,35 @@ function initializeDragAndDrop() {
                 
                 // If we didn't drop on a column selector item, handle the drop normally
                 if (!droppedOnColumnItem) {
-                    // Find the placeholder
-                    const placeholder = document.getElementById(draggedItem.getAttribute('data-placeholder-id'));
-                    if (placeholder && placeholder.parentNode) {
-                        // Move the real item back to the DOM where the placeholder is
-                        draggedItem.style.position = '';
-                        draggedItem.style.zIndex = '';
-                        draggedItem.style.width = '';
-                        draggedItem.style.left = '';
-                        draggedItem.style.top = '';
-                        draggedItem.style.transform = '';
-                        draggedItem.classList.remove('dragging');
-                        
-                        // Replace placeholder with the real item
-                        placeholder.parentNode.replaceChild(draggedItem, placeholder);
-                        
-                        // Update the data structure to reflect the new order
-                        updateTaskOrderInDataStructure();
+                    // Reset the dragged item's styles
+                    draggedItem.style.position = '';
+                    draggedItem.style.zIndex = '';
+                    draggedItem.style.width = '';
+                    draggedItem.style.left = '';
+                    draggedItem.style.top = '';
+                    draggedItem.style.transform = '';
+                    draggedItem.classList.remove('dragging');
+                    
+                    // Insert the item at the position where the placeholder was
+                    if (placeholderParent) {
+                        // If we have position information, insert at that position
+                        if (placeholderNextSibling) {
+                            // Insert before the next sibling (middle of the list)
+                            placeholderParent.insertBefore(draggedItem, placeholderNextSibling);
+                        } else {
+                            // No next sibling means it was at the end of the list
+                            placeholderParent.appendChild(draggedItem);
+                        }
+                    } else {
+                        // Fallback: add to the sortable list if we don't have position info
+                        const sortableList = document.querySelector('.sortable-list');
+                        if (sortableList) {
+                            sortableList.appendChild(draggedItem);
+                        }
                     }
+                    
+                    // Update the data structure to reflect the new order
+                    updateTaskOrderInDataStructure();
                 }
                 
                 // Clean up
