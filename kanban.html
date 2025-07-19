@@ -8,19 +8,19 @@
 </head>
 <body>
     <header id="app-header">
-        <button id="prev-board" class="board-nav-btn">&lt;</button>
+        <button id="prev-column" class="column-nav-btn">&lt;</button>
         <button id="settings-btn">⚙️</button>
         <button id="column-selector-btn" class="column-selector-btn">To column ▼</button>
-        <button id="next-board" class="board-nav-btn">&gt;</button>
+        <button id="next-column" class="column-nav-btn">&gt;</button>
     </header>
     
     <div id="board-container">
-        <div id="current-board">
-            <p id="board-message">Loading lists...</p>
+        <div id="current-column">
+            <p id="column-message">Loading lists...</p>
         </div>
     </div>
     
-    <div id="board-indicator" class="indicator-dots"></div>
+    <div id="column-indicator" class="indicator-dots"></div>
 
     <!-- Edit Item Modal using <dialog> -->
     <dialog id="edit-modal" class="modal">

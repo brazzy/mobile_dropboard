@@ -1,37 +1,37 @@
 // init.js - Setup and initialization
 
 /**
- * Initializes the application by fetching board data and rendering it
+ * Initializes the application by fetching column data and rendering it
  */
 async function initializeApp(boardName) {
-    const currentBoard = document.getElementById('current-board');
-    currentBoard.innerHTML = `<p id="board-message">Loading...</p>`;
+    const currentColumn = document.getElementById('current-column');
+    currentColumn.innerHTML = `<p id="column-message">Loading...</p>`;
     
     try {
         // Show loading message
-        document.getElementById('board-message').textContent = 'Fetching board data...';
+        document.getElementById('column-message').textContent = 'Fetching board data...';
         
         // Fetch board data from API
         const result = await fetchBoardData(boardName);
         
         if (!result.success) {
-            document.getElementById('board-message').innerHTML = `Error: ${result.error}`;
+            document.getElementById('column-message').innerHTML = `Error: ${result.error}`;
             return;
         }
         
         // Initialize swipe navigation
         initializeSwipeNavigation();
         
-        // Set the boards data for navigation
-        setNavigationBoards(result.data);
+        // Set the columns data for navigation
+        setNavigationColumns(result.data);
         
     } catch (error) {
-        document.getElementById('board-message').textContent = `Failed to initialize board: ${error.message}`;
+        document.getElementById('column-message').textContent = `Failed to initialize columns: ${error.message}`;
         console.error('Initialization Error:', error);
     }
 }
 
-// The renderBoard function is now handled by the BoardNavigator class in swipe.js
+// The renderColumn function is now handled by the ColumnNavigator class in swipe.js
 
 // Helper functions
 function parseListString(listString) {

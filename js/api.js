@@ -2,7 +2,7 @@
 
 /**
  * Fetches board data from the backend
- * @returns {Promise<Object>} Object containing board data and status information
+ * @returns {Promise<Object>} Object containing column data and status information
  */
 async function fetchBoardData(boardName) {
     const baseUrl = localStorage.getItem('baseUrl');
@@ -42,7 +42,7 @@ async function fetchBoardData(boardName) {
         const allItemDetails = await Promise.all(itemDetailPromises);
 
         // Stage 4: Combine all data for rendering
-        const finalBoardData = orderedListIds.map((id, index) => {
+        const finalColumnData = orderedListIds.map((id, index) => {
             const listDetail = listDetailsMap.get(id);
             if (!listDetail) return null;
 
@@ -67,7 +67,7 @@ async function fetchBoardData(boardName) {
             return { header: headerText, items: items };
         }).filter(Boolean);
 
-        return { success: true, data: finalBoardData };
+        return { success: true, data: finalColumnData };
 
     } catch (error) {
         console.error('API Error:', error);

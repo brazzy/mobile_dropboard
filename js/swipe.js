@@ -1,32 +1,32 @@
 // swipe.js - Swipe navigation for mobile view
 
 /**
- * Manages the board navigation with swipe gestures
+ * Manages the column navigation with swipe gestures
  */
-class BoardNavigator {
+class ColumnNavigator {
     constructor() {
-        this.boards = [];
-        this.currentBoardIndex = 0;
+        this.columns = [];
+        this.currentColumnIndex = 0;
         this.touchStartX = 0;
         this.touchEndX = 0;
         this.minSwipeDistance = 50; // Minimum distance to trigger swipe
         this.boardContainer = document.getElementById('board-container');
-        this.currentBoard = document.getElementById('current-board');
-        this.boardIndicator = document.getElementById('board-indicator');
+        this.currentColumn = document.getElementById('current-column');
+        this.columnIndicator = document.getElementById('column-indicator');
         
         // Initialize swipe detection
         this.initSwipeDetection();
     }
 
     /**
-     * Sets up the boards for navigation
-     * @param {Array} boardData - Array of board data objects
+     * Sets up the columns for navigation
+     * @param {Array} columnData - Array of column data objects
      */
-    setBoards(boardData) {
-        this.boards = boardData;
-        this.currentBoardIndex = 0;
-        this.updateBoardIndicator();
-        this.showCurrentBoard();
+    setColumns(columnData) {
+        this.columns = columnData;
+        this.currentColumnIndex = 0;
+        this.updateColumnIndicator();
+        this.showCurrentColumn();
     }
 
     /**
@@ -44,8 +44,8 @@ class BoardNavigator {
         }, { passive: true });
 
         // Add navigation buttons event listeners
-        document.getElementById('prev-board').addEventListener('click', () => this.prevBoard());
-        document.getElementById('next-board').addEventListener('click', () => this.nextBoard());
+        document.getElementById('prev-column').addEventListener('click', () => this.prevColumn());
+        document.getElementById('next-column').addEventListener('click', () => this.nextColumn());
     }
 
     /**
@@ -57,54 +57,54 @@ class BoardNavigator {
         if (Math.abs(swipeDistance) < this.minSwipeDistance) return;
         
         if (swipeDistance > 0) {
-            // Swipe right - go to previous board
-            this.prevBoard();
+            // Swipe right - go to previous column
+            this.prevColumn();
         } else {
-            // Swipe left - go to next board
-            this.nextBoard();
+            // Swipe left - go to next column
+            this.nextColumn();
         }
     }
 
     /**
-     * Navigate to the previous board
+     * Navigate to the previous column
      */
-    prevBoard() {
-        if (this.currentBoardIndex > 0) {
-            this.currentBoardIndex--;
-            this.showCurrentBoard();
-            this.updateBoardIndicator();
+    prevColumn() {
+        if (this.currentColumnIndex > 0) {
+            this.currentColumnIndex--;
+            this.showCurrentColumn();
+            this.updateColumnIndicator();
         }
     }
 
     /**
-     * Navigate to the next board
+     * Navigate to the next column
      */
-    nextBoard() {
-        if (this.currentBoardIndex < this.boards.length - 1) {
-            this.currentBoardIndex++;
-            this.showCurrentBoard();
-            this.updateBoardIndicator();
+    nextColumn() {
+        if (this.currentColumnIndex < this.columns.length - 1) {
+            this.currentColumnIndex++;
+            this.showCurrentColumn();
+            this.updateColumnIndicator();
         }
     }
 
     /**
-     * Show the current board
+     * Show the current column
      */
-    showCurrentBoard() {
-        if (!this.boards.length) return;
+    showCurrentColumn() {
+        if (!this.columns.length) return;
         
-        const currentBoard = this.boards[this.currentBoardIndex];
+        const currentColumn = this.columns[this.currentColumnIndex];
         
         // Update document title for better mobile experience
-        document.title = `${currentBoard.header} - Mobile Dropboard`;
+        document.title = `${currentColumn.header} - Mobile Dropboard`;
         
-        // Clear current board
-        this.currentBoard.innerHTML = '';
+        // Clear current column
+        this.currentColumn.innerHTML = '';
         
-        // Create the list for the current board
-        const listId = `list-${currentBoard.header.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+        // Create the list for the current column
+        const listId = `list-${currentColumn.header.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
         
-        const itemsHTML = currentBoard.items.map(item => `
+        const itemsHTML = currentColumn.items.map(item => `
             <li class="sortable-item" 
                 data-id="item-${Date.now()}-${Math.random()}" 
                 data-real-title="${escapeHtml(item.realTitle)}"
@@ -117,54 +117,54 @@ class BoardNavigator {
         const columnHTML = `
             <div class="list-column">
                 <div class="list-header">
-                    <h2>${currentBoard.header}</h2>
+                    <h2>${currentColumn.header}</h2>
                     <button class="add-item-btn" data-target-list="${listId}">+</button>
                 </div>
                 <ul id="${listId}" class="sortable-list">${itemsHTML}</ul>
             </div>
         `;
         
-        this.currentBoard.innerHTML = columnHTML;
+        this.currentColumn.innerHTML = columnHTML;
         
         // Reinitialize drag and drop for the new items
         initializeDragAndDrop();
     }
 
     /**
-     * Update the board indicator dots
+     * Update the column indicator dots
      */
-    updateBoardIndicator() {
-        if (!this.boards.length) return;
+    updateColumnIndicator() {
+        if (!this.columns.length) return;
         
-        this.boardIndicator.innerHTML = '';
+        this.columnIndicator.innerHTML = '';
         
-        for (let i = 0; i < this.boards.length; i++) {
+        for (let i = 0; i < this.columns.length; i++) {
             const dot = document.createElement('span');
             dot.className = 'indicator-dot';
-            if (i === this.currentBoardIndex) {
+            if (i === this.currentColumnIndex) {
                 dot.classList.add('active');
             }
-            this.boardIndicator.appendChild(dot);
+            this.columnIndicator.appendChild(dot);
         }
     }
 }
 
-// Global instance of the board navigator
-let boardNavigator;
+// Global instance of the column navigator
+let columnNavigator;
 
 /**
- * Initialize the board navigator
+ * Initialize the column navigator
  */
 function initializeSwipeNavigation() {
-    boardNavigator = new BoardNavigator();
+    columnNavigator = new ColumnNavigator();
 }
 
 /**
- * Set the boards data for navigation
- * @param {Array} boardData - Array of board data objects
+ * Set the columns data for navigation
+ * @param {Array} columnData - Array of column data objects
  */
-function setNavigationBoards(boardData) {
-    if (boardNavigator) {
-        boardNavigator.setBoards(boardData);
+function setNavigationColumns(columnData) {
+    if (columnNavigator) {
+        columnNavigator.setColumns(columnData);
     }
 }

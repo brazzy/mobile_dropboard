@@ -320,21 +320,21 @@ function setupMutationObserver() {
  * This ensures the order persists when switching between columns
  */
 function updateTaskOrderInDataStructure() {
-    // Check if boardNavigator exists and is properly initialized
-    if (typeof boardNavigator === 'undefined' || !boardNavigator.boards || !boardNavigator.boards.length) {
-        console.error('Board navigator not available for updating task order');
+    // Check if columnNavigator exists and is properly initialized
+    if (typeof columnNavigator === 'undefined' || !columnNavigator.columns || !columnNavigator.columns.length) {
+        console.error('Column navigator not available for updating task order');
         return;
     }
     
-    // Get the current board index
-    const currentBoardIndex = boardNavigator.currentBoardIndex;
-    if (currentBoardIndex < 0 || currentBoardIndex >= boardNavigator.boards.length) {
-        console.error('Invalid board index');
+    // Get the current column index
+    const currentColumnIndex = columnNavigator.currentColumnIndex;
+    if (currentColumnIndex < 0 || currentColumnIndex >= columnNavigator.columns.length) {
+        console.error('Invalid column index');
         return;
     }
     
-    // Get the current board
-    const currentBoard = boardNavigator.boards[currentBoardIndex];
+    // Get the current column
+    const currentColumn = columnNavigator.columns[currentColumnIndex];
     
     // Get the sortable list element that contains the tasks
     const sortableList = document.querySelector('.sortable-list');
@@ -360,9 +360,9 @@ function updateTaskOrderInDataStructure() {
         };
     });
     
-    // Update the board's items array with the new order
-    currentBoard.items = reorderedTasks;
+    // Update the column's items array with the new order
+    currentColumn.items = reorderedTasks;
     
-    console.log('Task order updated in data structure for board:', currentBoard.header);
+    console.log('Task order updated in data structure for column:', currentColumn.header);
 }
 

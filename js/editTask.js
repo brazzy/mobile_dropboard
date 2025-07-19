@@ -70,21 +70,21 @@ function openNewTaskDialog(listId) {
  * @param {string} content - The content of the task
  */
 function addNewTaskToDataStructure(realTitle, displayTitle, content) {
-    // Check if boardNavigator exists and is properly initialized
-    if (typeof boardNavigator === 'undefined' || !boardNavigator.boards || !boardNavigator.boards.length) {
-        console.error('Board navigator not available for adding new task');
+    // Check if columnNavigator exists and is properly initialized
+    if (typeof columnNavigator === 'undefined' || !columnNavigator.columns || !columnNavigator.columns.length) {
+        console.error('Column navigator not available for adding new task');
         return;
     }
     
-    // Get the current board index
-    const currentBoardIndex = boardNavigator.currentBoardIndex;
-    if (currentBoardIndex < 0 || currentBoardIndex >= boardNavigator.boards.length) {
-        console.error('Invalid board index');
+    // Get the current column index
+    const currentColumnIndex = columnNavigator.currentColumnIndex;
+    if (currentColumnIndex < 0 || currentColumnIndex >= columnNavigator.columns.length) {
+        console.error('Invalid column index');
         return;
     }
     
-    // Get the current board
-    const currentBoard = boardNavigator.boards[currentBoardIndex];
+    // Get the current column
+    const currentColumn = columnNavigator.columns[currentColumnIndex];
     
     // Create a new task object
     const newTask = {
@@ -94,7 +94,7 @@ function addNewTaskToDataStructure(realTitle, displayTitle, content) {
     };
     
     // Add the new task to the beginning of the items array
-    currentBoard.items.unshift(newTask);
+    currentColumn.items.unshift(newTask);
     
     console.log('New task added to data structure:', displayTitle);
 }
@@ -105,29 +105,29 @@ function addNewTaskToDataStructure(realTitle, displayTitle, content) {
  * @param {string} newTitle - The new title for the task
  */
 function updateTaskTitleInDataStructure(taskElement, newTitle) {
-    // Check if boardNavigator exists and is properly initialized
-    if (typeof boardNavigator === 'undefined' || !boardNavigator.boards || !boardNavigator.boards.length) {
-        console.error('Board navigator not available for updating task title');
+    // Check if columnNavigator exists and is properly initialized
+    if (typeof columnNavigator === 'undefined' || !columnNavigator.columns || !columnNavigator.columns.length) {
+        console.error('Column navigator not available for updating task title');
         return;
     }
     
-    // Get the current board index
-    const currentBoardIndex = boardNavigator.currentBoardIndex;
-    if (currentBoardIndex < 0 || currentBoardIndex >= boardNavigator.boards.length) {
-        console.error('Invalid board index');
+    // Get the current column index
+    const currentColumnIndex = columnNavigator.currentColumnIndex;
+    if (currentColumnIndex < 0 || currentColumnIndex >= columnNavigator.columns.length) {
+        console.error('Invalid column index');
         return;
     }
     
-    // Get the current board
-    const currentBoard = boardNavigator.boards[currentBoardIndex];
+    // Get the current column
+    const currentColumn = columnNavigator.columns[currentColumnIndex];
     
-    // Find the task in the board's items array
+    // Find the task in the column's items array
     const realTitle = taskElement.dataset.realTitle;
-    const taskIndex = currentBoard.items.findIndex(item => item.realTitle === realTitle);
+    const taskIndex = currentColumn.items.findIndex(item => item.realTitle === realTitle);
     
     if (taskIndex !== -1) {
         // Update the title in the data structure
-        currentBoard.items[taskIndex].displayTitle = newTitle;
+        currentColumn.items[taskIndex].displayTitle = newTitle;
         console.log('Task title updated in data structure:', newTitle);
     } else {
         console.error('Task not found in data structure');

@@ -117,10 +117,10 @@ function handleDragMove(clientX, clientY) {
                     // Handle drop on mouseup
                     item.onmouseup = function() {
                         if (isDragging && draggedTask) {
-                            const boardIndex = parseInt(item.dataset.boardIndex);
-                            if (!isNaN(boardIndex)) {
-                                console.log('Dropping task on column:', boardIndex);
-                                moveTaskToBoard(draggedTask, boardIndex);
+                            const columnIndex = parseInt(item.dataset.columnIndex);
+                            if (!isNaN(columnIndex)) {
+                                console.log('Dropping task on column:', columnIndex);
+                                moveTaskToColumn(draggedTask, columnIndex);
                                 toggleDropdown(false);
                                 isDragging = false;
                                 draggedTask = null;
@@ -132,10 +132,10 @@ function handleDragMove(clientX, clientY) {
                     item.ondrop = function(e) {
                         e.preventDefault();
                         if (isDragging && draggedTask) {
-                            const boardIndex = parseInt(item.dataset.boardIndex);
-                            if (!isNaN(boardIndex)) {
-                                console.log('Task dropped on column title:', boardIndex);
-                                moveTaskToBoard(draggedTask, boardIndex);
+                            const columnIndex = parseInt(item.dataset.columnIndex);
+                            if (!isNaN(columnIndex)) {
+                                console.log('Task dropped on column title:', columnIndex);
+                                moveTaskToColumn(draggedTask, columnIndex);
                                 toggleDropdown(false);
                                 isDragging = false;
                                 draggedTask = null;
@@ -178,48 +178,48 @@ function toggleDropdown(show) {
 function showDropdown() {
     console.log('Showing dropdown');
     
-    // Get the board navigator from the global scope
+    // Get the column navigator from the global scope
     // This is defined in swipe.js
-    if (typeof boardNavigator === 'undefined') {
-        console.error('Board navigator is not defined');
+    if (typeof columnNavigator === 'undefined') {
+        console.error('Column navigator is not defined');
         return;
     }
     
-    console.log('Board navigator:', boardNavigator);
+    console.log('Column navigator:', columnNavigator);
     
-    if (!boardNavigator || !boardNavigator.boards || !boardNavigator.boards.length) {
-        console.error('Board navigator has no boards');
+    if (!columnNavigator || !columnNavigator.columns || !columnNavigator.columns.length) {
+        console.error('Column navigator has no columns');
         return;
     }
     
     // Clear existing items
     columnDropdown.innerHTML = '';
     
-    // Get current board index
-    const currentIndex = boardNavigator.currentBoardIndex;
-    console.log('Current board index:', currentIndex);
+    // Get current column index
+    const currentIndex = columnNavigator.currentColumnIndex;
+    console.log('Current column index:', currentIndex);
     
-    // Add all boards except the current one
-    let hasOtherBoards = false;
-    boardNavigator.boards.forEach((board, index) => {
-        if (index === currentIndex) return; // Skip current board
+    // Add all columns except the current one
+    let hasOtherColumns = false;
+    columnNavigator.columns.forEach((column, index) => {
+        if (index === currentIndex) return; // Skip current column
         
-        hasOtherBoards = true;
+        hasOtherColumns = true;
         const item = document.createElement('div');
         item.className = 'column-selector-item';
-        item.textContent = board.header;
-        item.dataset.boardIndex = index;
+        item.textContent = column.header;
+        item.dataset.columnIndex = index;
         
         // Make the item a proper drop target
         item.setAttribute('draggable', 'false');
         item.setAttribute('data-droppable', 'true');
         
         columnDropdown.appendChild(item);
-        console.log('Added board to dropdown:', board.header, 'index:', index);
+        console.log('Added column to dropdown:', column.header, 'index:', index);
     });
     
-    if (!hasOtherBoards) {
-        console.log('No other boards available');
+    if (!hasOtherColumns) {
+        console.log('No other columns available');
         return;
     }
     
@@ -253,19 +253,19 @@ function hideDropdown() {
 }
 
 /**
- * Move a task to another board
+ * Move a task to another column
  * @param {HTMLElement} task - The task element to move
- * @param {number} targetBoardIndex - The index of the target board
+ * @param {number} targetColumnIndex - The index of the target column
  */
-function moveTaskToBoard(task, targetBoardIndex) {
-    console.log('Moving task to board', targetBoardIndex);
-    if (typeof boardNavigator === 'undefined') {
-        console.error('Board navigator is not defined');
+function moveTaskToColumn(task, targetColumnIndex) {
+    console.log('Moving task to column', targetColumnIndex);
+    if (typeof columnNavigator === 'undefined') {
+        console.error('Column navigator is not defined');
         return;
     }
     
-    if (!boardNavigator || !boardNavigator.boards) {
-        console.error('Board navigator has no boards');
+    if (!columnNavigator || !columnNavigator.columns) {
+        console.error('Column navigator has no columns');
         return;
     }
     
@@ -276,47 +276,47 @@ function moveTaskToBoard(task, targetBoardIndex) {
     
     console.log('Task data:', { title: taskTitle, realTitle: taskRealTitle });
     
-    // Get the current board index
-    const currentBoardIndex = boardNavigator.currentBoardIndex;
+    // Get the current column index
+    const currentColumnIndex = columnNavigator.currentColumnIndex;
     
-    // Remove task from current board's data structure
-    if (currentBoardIndex >= 0 && currentBoardIndex < boardNavigator.boards.length) {
-        const currentBoard = boardNavigator.boards[currentBoardIndex];
-        // Filter out the task being moved from the current board's items
-        currentBoard.items = currentBoard.items.filter(item => item.realTitle !== taskRealTitle);
+    // Remove task from current column's data structure
+    if (currentColumnIndex >= 0 && currentColumnIndex < columnNavigator.columns.length) {
+        const currentColumn = columnNavigator.columns[currentColumnIndex];
+        // Filter out the task being moved from the current column's items
+        currentColumn.items = currentColumn.items.filter(item => item.realTitle !== taskRealTitle);
     }
     
     // Remove task from DOM
     task.remove();
     
-    // Get target board
-    const targetBoard = boardNavigator.boards[targetBoardIndex];
-    if (!targetBoard) {
-        console.error('Target board not found');
+    // Get target column
+    const targetColumn = columnNavigator.columns[targetColumnIndex];
+    if (!targetColumn) {
+        console.error('Target column not found');
         return;
     }
     
-    // Add task to the beginning of target board's items array (at the top)
-    targetBoard.items.unshift({
+    // Add task to the beginning of target column's items array (at the top)
+    targetColumn.items.unshift({
         realTitle: taskRealTitle || `item-${Date.now()}`,
         displayTitle: taskTitle || 'Moved Task',
         content: taskContent || ''
     });
     
-    console.log('Task added to the top of board', targetBoard.header);
+    console.log('Task added to the top of column', targetColumn.header);
     
-    // Update the current board's task order in the data structure
+    // Update the current column's task order in the data structure
     // This ensures we capture any drag-and-drop reordering that happened before the move
-    if (currentBoardIndex >= 0 && currentBoardIndex < boardNavigator.boards.length) {
-        // Only update if we're still on the source board
-        if (boardNavigator.currentBoardIndex === currentBoardIndex) {
+    if (currentColumnIndex >= 0 && currentColumnIndex < columnNavigator.columns.length) {
+        // Only update if we're still on the source column
+        if (columnNavigator.currentColumnIndex === currentColumnIndex) {
             updateTaskOrderInDataStructure();
         }
     }
     
-    // If the target board is currently displayed, refresh it
-    if (boardNavigator.currentBoardIndex === targetBoardIndex) {
-        boardNavigator.showCurrentBoard();
+    // If the target column is currently displayed, refresh it
+    if (columnNavigator.currentColumnIndex === targetColumnIndex) {
+        columnNavigator.showCurrentColumn();
     }
 }
 
@@ -325,7 +325,7 @@ function moveTaskToBoard(task, targetBoardIndex) {
 
 // This function will be called after the board data is loaded
 function initColumnSelector() {
-    // Wait a short time to ensure the board navigator is fully initialized
+    // Wait a short time to ensure the column navigator is fully initialized
     setTimeout(function() {
         console.log('Initializing column selector');
         initializeColumnSelector();
@@ -343,15 +343,15 @@ window.initializeSwipeNavigation = function() {
     
     console.log('Swipe navigation initialized, setting up column selector');
     
-    // The original setNavigationBoards function is called after boards are loaded
-    const originalSetNavBoards = window.setNavigationBoards;
-    window.setNavigationBoards = function(boardData) {
+    // The original setNavigationColumns function is called after columns are loaded
+    const originalSetNavColumns = window.setNavigationColumns;
+    window.setNavigationColumns = function(columnData) {
         // Call the original function first
-        if (originalSetNavBoards) {
-            originalSetNavBoards.apply(this, arguments);
+        if (originalSetNavColumns) {
+            originalSetNavColumns.apply(this, arguments);
         }
         
-        console.log('Boards loaded, initializing column selector');
+        console.log('Columns loaded, initializing column selector');
         initColumnSelector();
     };
 };
