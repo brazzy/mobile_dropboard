@@ -4,7 +4,7 @@
  * Fetches board data from the backend
  * @returns {Promise<Object>} Object containing board data and status information
  */
-async function fetchBoardData() {
+async function fetchBoardData(boardName) {
     const baseUrl = localStorage.getItem('baseUrl');
     if (!baseUrl) {
         return { success: false, error: 'Base URL not set. Please configure it in ⚙️ Settings.' };
@@ -17,7 +17,7 @@ async function fetchBoardData() {
 
     try {
         // Stage 1: Fetch board structure
-        const structureUrl = `${baseUrl}/recipes/default/tiddlers/Tasks Privat`;
+        const structureUrl = `${baseUrl}/recipes/default/tiddlers/${boardName}`;
         const structureResponse = await fetch(structureUrl, { headers });
         if (!structureResponse.ok) throw new Error(`HTTP error fetching structure! Status: ${structureResponse.status}`);
         const structureData = await structureResponse.json();
@@ -25,7 +25,7 @@ async function fetchBoardData() {
         const orderedListIds = parseListString(structureData.fields.list);
 
         // Stage 2: Fetch list details
-        const listDetailsUrl = `${baseUrl}/recipes/default/tiddlers.json?filter=%5Btag%5BTasks Privat%5D%5D`;
+        const listDetailsUrl = `${baseUrl}/recipes/default/tiddlers.json?filter=%5Btag%5B${boardName}%5D%5D`;
         const listDetailsResponse = await fetch(listDetailsUrl, { headers });
         if (!listDetailsResponse.ok) throw new Error(`HTTP error fetching list details! Status: ${listDetailsResponse.status}`);
         const listDetailsData = await listDetailsResponse.json();

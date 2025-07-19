@@ -4,7 +4,8 @@
 const editModalState = {
     currentEditingItem: null,
     targetListId: null,
-    isNewTask: false
+    isNewTask: false,
+    originalTitle: null // Store the original title to detect changes
 };
 
 /**
@@ -62,6 +63,77 @@ function openNewTaskDialog(listId) {
     }, 100);
 }
 
+/**
+ * Adds a new task to the data structure
+ * @param {string} realTitle - The unique identifier for the task
+ * @param {string} displayTitle - The display title for the task
+ * @param {string} content - The content of the task
+ */
+function addNewTaskToDataStructure(realTitle, displayTitle, content) {
+    // Check if boardNavigator exists and is properly initialized
+    if (typeof boardNavigator === 'undefined' || !boardNavigator.boards || !boardNavigator.boards.length) {
+        console.error('Board navigator not available for adding new task');
+        return;
+    }
+    
+    // Get the current board index
+    const currentBoardIndex = boardNavigator.currentBoardIndex;
+    if (currentBoardIndex < 0 || currentBoardIndex >= boardNavigator.boards.length) {
+        console.error('Invalid board index');
+        return;
+    }
+    
+    // Get the current board
+    const currentBoard = boardNavigator.boards[currentBoardIndex];
+    
+    // Create a new task object
+    const newTask = {
+        realTitle: realTitle,
+        displayTitle: displayTitle,
+        content: content
+    };
+    
+    // Add the new task to the beginning of the items array
+    currentBoard.items.unshift(newTask);
+    
+    console.log('New task added to data structure:', displayTitle);
+}
+
+/**
+ * Updates the title of a task in the data structure
+ * @param {HTMLElement} taskElement - The task element being edited
+ * @param {string} newTitle - The new title for the task
+ */
+function updateTaskTitleInDataStructure(taskElement, newTitle) {
+    // Check if boardNavigator exists and is properly initialized
+    if (typeof boardNavigator === 'undefined' || !boardNavigator.boards || !boardNavigator.boards.length) {
+        console.error('Board navigator not available for updating task title');
+        return;
+    }
+    
+    // Get the current board index
+    const currentBoardIndex = boardNavigator.currentBoardIndex;
+    if (currentBoardIndex < 0 || currentBoardIndex >= boardNavigator.boards.length) {
+        console.error('Invalid board index');
+        return;
+    }
+    
+    // Get the current board
+    const currentBoard = boardNavigator.boards[currentBoardIndex];
+    
+    // Find the task in the board's items array
+    const realTitle = taskElement.dataset.realTitle;
+    const taskIndex = currentBoard.items.findIndex(item => item.realTitle === realTitle);
+    
+    if (taskIndex !== -1) {
+        // Update the title in the data structure
+        currentBoard.items[taskIndex].displayTitle = newTitle;
+        console.log('Task title updated in data structure:', newTitle);
+    } else {
+        console.error('Task not found in data structure');
+    }
+}
+
 function initializeEditModal() {
     const dialog = document.getElementById('edit-modal');
     const titleInput = document.getElementById('modal-title-input');
@@ -74,6 +146,7 @@ function initializeEditModal() {
         editModalState.currentEditingItem = item;
         editModalState.isNewTask = false;
         titleInput.value = item.dataset.title || '';
+        editModalState.originalTitle = item.dataset.title || '';
         
         // Hide error message when opening an existing task
         const modalError = document.getElementById('modal-error');
@@ -109,6 +182,25 @@ function initializeEditModal() {
 
     dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });
     document.getElementById('modal-edit-btn').addEventListener('click', () => setEditModalState('edit'));
+    
+    // Add event listener to save title changes as they happen
+    titleInput.addEventListener('input', () => {
+        if (editModalState.currentEditingItem && !editModalState.isNewTask) {
+            const newTitle = titleInput.value.trim();
+            
+            // Update the item's dataset
+            editModalState.currentEditingItem.dataset.title = newTitle;
+            
+            // Update the displayed title in the content wrapper
+            const contentWrapper = editModalState.currentEditingItem.querySelector('.content-wrapper');
+            if (contentWrapper) {
+                contentWrapper.textContent = newTitle;
+            }
+            
+            // Update the title in the board data structure
+            updateTaskTitleInDataStructure(editModalState.currentEditingItem, newTitle);
+        }
+    });
     document.getElementById('modal-close-btn').addEventListener('click', () => {
         dialog.close();
         // Reset state after closing
@@ -196,6 +288,9 @@ function initializeEditModal() {
                 
                 // The item will be made draggable by the interact.js library
                 // since it has the 'sortable-item' class
+                
+                // Add the new task to the data structure
+                addNewTaskToDataStructure(item.dataset.realTitle, title, content);
             }
         }
         
