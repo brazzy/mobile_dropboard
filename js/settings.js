@@ -1,6 +1,6 @@
 // settings.js - Settings functionality
 
-function initializeSettingsModal() {
+function initializeSettingsModal(boardName) {
     const dialog = document.getElementById('settings-modal');
     const urlInput = document.getElementById('settings-url-input');
     const userInput = document.getElementById('settings-user-input');
@@ -19,7 +19,7 @@ function initializeSettingsModal() {
         localStorage.setItem('user', userInput.value);
         localStorage.setItem('password', passwordInput.value);
         dialog.close();
-        initializeApp(); // Re-initialize after saving
+        initializeApp(boardName); // Re-initialize after saving
     });
 
     dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });

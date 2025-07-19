@@ -3,7 +3,7 @@
 /**
  * Initializes the application by fetching board data and rendering it
  */
-async function initializeApp() {
+async function initializeApp(boardName) {
     const currentBoard = document.getElementById('current-board');
     currentBoard.innerHTML = `<p id="board-message">Loading...</p>`;
     
@@ -12,7 +12,7 @@ async function initializeApp() {
         document.getElementById('board-message').textContent = 'Fetching board data...';
         
         // Fetch board data from API
-        const result = await fetchBoardData();
+        const result = await fetchBoardData(boardName);
         
         if (!result.success) {
             document.getElementById('board-message').innerHTML = `Error: ${result.error}`;
