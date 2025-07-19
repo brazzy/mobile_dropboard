@@ -147,7 +147,23 @@ function initializeEditModal() {
             // Editing an existing task
             editModalState.currentEditingItem.dataset.title = title;
             editModalState.currentEditingItem.dataset.content = content;
-            editModalState.currentEditingItem.textContent = title;
+            
+            // Ensure proper structure is maintained for styling
+            // Clear existing content first
+            editModalState.currentEditingItem.innerHTML = '';
+            
+            // Create proper structure with content-wrapper
+            const contentWrapper = document.createElement('div');
+            contentWrapper.className = 'content-wrapper';
+            contentWrapper.textContent = title;
+            
+            // Add drag handle
+            const dragHandle = document.createElement('div');
+            dragHandle.className = 'drag-handle';
+            
+            // Add elements to the item
+            editModalState.currentEditingItem.appendChild(dragHandle);
+            editModalState.currentEditingItem.appendChild(contentWrapper);
 
             // Update the display div with the new formatted content before closing
             contentDisplay.innerHTML = formatContentToHtml(content);
@@ -162,7 +178,19 @@ function initializeEditModal() {
                 item.dataset.title = title;
                 item.dataset.content = content;
                 item.dataset.realTitle = `New-${Date.now()}`; // Add a realTitle for consistency
-                item.textContent = title;
+                
+                // Create proper structure with content-wrapper
+                const contentWrapper = document.createElement('div');
+                contentWrapper.className = 'content-wrapper';
+                contentWrapper.textContent = title;
+                
+                // Add drag handle
+                const dragHandle = document.createElement('div');
+                dragHandle.className = 'drag-handle';
+                
+                // Add elements to the item
+                item.appendChild(dragHandle);
+                item.appendChild(contentWrapper);
                 
                 targetList.prepend(item);
                 
