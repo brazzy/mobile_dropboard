@@ -1,6 +1,18 @@
 // api.js - Communication with backend
 
 /**
+ * Creates headers with basic authentication from localStorage credentials
+ * @returns {Headers} Headers object with Authorization if credentials exist
+ */
+function createAuthHeaders() {
+    const user = localStorage.getItem('user') || '';
+    const password = localStorage.getItem('password') || '';
+    const headers = new Headers();
+    if (user) headers.append('Authorization', 'Basic ' + btoa(user + ':' + password));
+    return headers;
+}
+
+/**
  * Fetches board data from the backend
  * @returns {Promise<Object>} Object containing column data and status information
  */
@@ -9,12 +21,8 @@ async function fetchBoardData(boardName) {
     if (!baseUrl) {
         return { success: false, error: 'Base URL not set. Please configure it in ⚙️ Settings.' };
     }
-    
-    const user = localStorage.getItem('user') || '';
-    const password = localStorage.getItem('password') || '';
-    const headers = new Headers();
-    if (user) headers.append('Authorization', 'Basic ' + btoa(user + ':' + password));
 
+    const headers = createAuthHeaders();
     try {
         // Stage 1: Fetch board structure
         const structureUrl = `${baseUrl}/recipes/default/tiddlers/${boardName}`;
@@ -86,11 +94,7 @@ async function fetchTaskContent(realTitle) {
         return { success: false, error: 'Error: Missing configuration or item title.' };
     }
 
-    const user = localStorage.getItem('user') || '';
-    const password = localStorage.getItem('password') || '';
-    const headers = new Headers();
-    if (user) headers.append('Authorization', 'Basic ' + btoa(user + ':' + password));
-
+    const headers = createAuthHeaders();
     try {
         const url = `${baseUrl}/recipes/default/tiddlers/${encodeURIComponent(realTitle)}`;
         const response = await fetch(url, { headers });
