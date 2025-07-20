@@ -124,6 +124,7 @@ async function updateSortOrder(columnTitle, taskTitles) {
 
     const headers = createAuthHeaders();
     headers.append('Content-Type', 'application/json');
+    headers.append('X-Requested-With', 'TiddlyWiki');
     
     try {
         // First fetch the current column data
