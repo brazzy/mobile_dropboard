@@ -64,7 +64,7 @@ async function fetchBoardData(boardName) {
                 headerText = headerText.replace(/\'\'/g, '');
             }
 
-            return { header: headerText, items: items };
+            return { id: id,header: headerText, items: items };
         }).filter(Boolean);
 
         return { success: true, data: finalColumnData };
