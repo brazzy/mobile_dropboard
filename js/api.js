@@ -109,3 +109,50 @@ async function fetchTaskContent(realTitle) {
         return { success: false, error: error.message };
     }
 }
+
+/**
+ * Updates the sort order of tasks in a column
+ * @param {string} columnTitle - The title of the column to update
+ * @param {string[]} taskTitles - Array of task titles in the desired order
+ * @returns {Promise<Object>} - Object containing status information
+ */
+async function updateSortOrder(columnTitle, taskTitles) {
+    const baseUrl = localStorage.getItem('baseUrl');
+    if (!baseUrl || !columnTitle) {
+        return { success: false, error: 'Error: Missing configuration or column title.' };
+    }
+
+    const headers = createAuthHeaders();
+    headers.append('Content-Type', 'application/json');
+    
+    try {
+        // First fetch the current column data
+        const url = `${baseUrl}/recipes/default/tiddlers/${encodeURIComponent(columnTitle)}`;
+        const response = await fetch(url, { headers });
+        if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+
+        const columnData = await response.json();
+        
+        // Format the task titles into the required format (space-separated with double square brackets for titles with spaces)
+        const formattedList = taskTitles.map(title => 
+            title.includes(' ') ? `[[${title}]]` : title
+        ).join(' ');
+        
+        // Update the list property in the column data
+        columnData.fields.list = formattedList;
+        
+        // Send the updated data back to the server
+        const putResponse = await fetch(url, {
+            method: 'PUT',
+            headers: headers,
+            body: JSON.stringify(columnData)
+        });
+        
+        if (!putResponse.ok) throw new Error(`HTTP Error updating column: ${putResponse.status}`);
+        
+        return { success: true };
+    } catch (error) {
+        console.error('Failed to update sort order:', error);
+        return { success: false, error: error.message };
+    }
+}
