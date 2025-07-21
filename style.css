@@ -23,7 +23,7 @@ body {
     z-index: 100;
 }
 
-#settings-btn, #board-selector-btn, .column-selector-btn {
+#settings-btn, .column-selector-btn {
     padding: 10px 15px;
     font-size: 1.2rem;
     cursor: pointer;
@@ -35,6 +35,27 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 150px;
+}
+
+/* Special styling for board selector button */
+#board-selector-btn {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+    line-height: 1.2;
+    cursor: pointer;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    white-space: normal; /* Allow text to wrap */
+    overflow: hidden;
+    max-width: 100px;
+    height: auto;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
 /* Column selector styles */
