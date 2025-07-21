@@ -67,7 +67,7 @@ async function fetchBoardData(boardName) {
             });
 
             // Strip single quotes from header text if it comes from shorttext
-            let headerText = listDetail.shorttext || id.replace('tid/Privat/', '');
+            let headerText = listDetail.shorttext;
             if (listDetail.shorttext) {
                 headerText = headerText.replace(/\'\'/g, '');
             }
