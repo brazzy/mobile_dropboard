@@ -23,7 +23,7 @@ body {
     z-index: 100;
 }
 
-#settings-btn, .column-selector-btn {
+#settings-btn, #board-selector-btn, .column-selector-btn {
     padding: 10px 15px;
     font-size: 1.2rem;
     cursor: pointer;
