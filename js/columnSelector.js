@@ -31,7 +31,7 @@ function initializeColumnSelector() {
     // Add click handler for the button
     columnSelectorBtn.addEventListener('click', function() {
         if (isDragging) {
-            toggleDropdown(true);
+            toggleColumnDropdown(true);
         }
     });
     
@@ -64,7 +64,7 @@ function setupDragListeners() {
         isDragging = false;
         draggedTask = null;
         columnSelectorBtn.classList.remove('highlight');
-        toggleDropdown(false);
+        toggleColumnDropdown(false);
     });
 }
 
@@ -87,7 +87,7 @@ function handleDragMove(clientX, clientY) {
     if (isOverButton) {
         console.log('Dragging over column selector button');
         columnSelectorBtn.classList.add('highlight');
-        toggleDropdown(true);
+        toggleColumnDropdown(true);
     } else if (columnDropdown.classList.contains('active')) {
         // Check if mouse is over the dropdown
         const dropdownRect = columnDropdown.getBoundingClientRect();
@@ -99,7 +99,7 @@ function handleDragMove(clientX, clientY) {
         
         if (!isOverDropdown) {
             columnSelectorBtn.classList.remove('highlight');
-            toggleDropdown(false);
+            toggleColumnDropdown(false);
         } else {
             // Check if mouse is over a specific column item
             const items = columnDropdown.querySelectorAll('.column-selector-item');
@@ -121,7 +121,7 @@ function handleDragMove(clientX, clientY) {
                             if (!isNaN(columnIndex)) {
                                 console.log('Dropping task on column:', columnIndex);
                                 moveTaskToColumn(draggedTask, columnIndex);
-                                toggleDropdown(false);
+                                toggleColumnDropdown(false);
                                 isDragging = false;
                                 draggedTask = null;
                             }
@@ -136,7 +136,7 @@ function handleDragMove(clientX, clientY) {
                             if (!isNaN(columnIndex)) {
                                 console.log('Task dropped on column title:', columnIndex);
                                 moveTaskToColumn(draggedTask, columnIndex);
-                                toggleDropdown(false);
+                                toggleColumnDropdown(false);
                                 isDragging = false;
                                 draggedTask = null;
                             }
@@ -164,19 +164,19 @@ function handleDragMove(clientX, clientY) {
  * Toggle the dropdown visibility
  * @param {boolean} show - Whether to show or hide the dropdown
  */
-function toggleDropdown(show) {
+function toggleColumnDropdown(show) {
     if (show) {
-        showDropdown();
+        showColumnDropdown();
     } else {
-        hideDropdown();
+        hideColumnDropdown();
     }
 }
 
 /**
  * Show the dropdown with column options
  */
-function showDropdown() {
-    console.log('Showing dropdown');
+function showColumnDropdown() {
+    console.log('Showing column dropdown');
     
     // Get the column navigator from the global scope
     // This is defined in swipe.js
@@ -238,8 +238,8 @@ function showDropdown() {
 /**
  * Hide the dropdown
  */
-function hideDropdown() {
-    console.log('Hiding dropdown');
+function hideColumnDropdown() {
+    console.log('Hiding column dropdown');
     columnDropdown.classList.remove('active');
     
     // Remove any event handlers from items

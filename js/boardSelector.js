@@ -7,6 +7,7 @@ let currentBoardName = '';
 
 // Hardcoded list of available boards
 const availableBoards = [
+    'Testboard',
     'Tasks Privat',
     'Tasks Lexcom',
     'Tasks Kalender'
@@ -40,14 +41,14 @@ function initializeBoardSelector() {
     // Add click handler for the button
     boardSelectorBtn.addEventListener('click', function(event) {
         event.stopPropagation();
-        toggleDropdown();
+        toggleBoardDropdown();
     });
     
     // Close dropdown when clicking elsewhere
     document.addEventListener('click', function(event) {
         if (boardDropdown && boardDropdown.classList.contains('active') && 
             event.target !== boardSelectorBtn && !boardDropdown.contains(event.target)) {
-            hideDropdown();
+            hideBoardDropdown();
         }
     });
     
@@ -68,18 +69,18 @@ function updateBoardSelectorButton() {
 /**
  * Toggle the dropdown visibility
  */
-function toggleDropdown() {
+function toggleBoardDropdown() {
     if (boardDropdown.classList.contains('active')) {
-        hideDropdown();
+        hideBoardDropdown();
     } else {
-        showDropdown();
+        showBoardDropdown();
     }
 }
 
 /**
  * Show the dropdown with board options
  */
-function showDropdown() {
+function showBoardDropdown() {
     console.log('Showing board dropdown');
     
     // Clear existing items
@@ -103,7 +104,7 @@ function showDropdown() {
             if (boardName !== currentBoardName) {
                 switchBoard(boardName);
             }
-            hideDropdown();
+            hideBoardDropdown();
         });
         
         boardDropdown.appendChild(item);
@@ -124,7 +125,7 @@ function showDropdown() {
 /**
  * Hide the dropdown
  */
-function hideDropdown() {
+function hideBoardDropdown() {
     console.log('Hiding board dropdown');
     if (boardDropdown) {
         boardDropdown.classList.remove('active');
