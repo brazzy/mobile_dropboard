@@ -88,7 +88,7 @@ async function fetchBoardData(boardName) {
  * @param {string} realTitle - The real title of the task item
  * @returns {Promise<Object>} - Object containing the fetched content and status information
  */
-async function fetchTaskContent(realTitle) {
+async function fetchTask(realTitle) {
     const baseUrl = localStorage.getItem('baseUrl');
     if (!baseUrl || !realTitle) {
         return { success: false, error: 'Error: Missing configuration or item title.' };
@@ -101,11 +101,110 @@ async function fetchTaskContent(realTitle) {
         if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
 
         const data = await response.json();
-        const content = data.text ?? data.fields?.text ?? 'Content not found in response.';
         
-        return { success: true, content };
+        return { success: true, task: data };
     } catch (error) {
         console.error('Failed to fetch item content:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+/**
+ * Moves a task from one column to another
+ * @param {number} targetColumnIndex - The index of the column to move the task to
+ * @param {string} taskRealTitle - The real title of the task to move
+ * @returns {Promise<Object>} - Object containing status information
+ */
+async function moveTaskBetween(targetColumnIndex, taskRealTitle) {
+    // Validate inputs
+    if (targetColumnIndex === undefined || !taskRealTitle) {
+        return { success: false, error: 'Missing required parameters' };
+    }
+    
+    // Check if columnNavigator is available
+    if (!columnNavigator || !columnNavigator.columns) {
+        return { success: false, error: 'Column navigator not available' };
+    }
+    
+    // Get current and target columns
+    const currentColumn = columnNavigator.columns[columnNavigator.currentColumnIndex]
+    const targetColumn = columnNavigator.columns[targetColumnIndex];
+    
+    if (!currentColumn || !targetColumn) {
+        return { success: false, error: 'Invalid column indices' };
+    }
+    
+    try {
+        // Step 1: Get the real titles of tasks in the current column
+        const currentColumnTaskTitles = currentColumn.items.map(item => item.realTitle);
+        
+        // Step 2: Update the sort order of the current column (removing the task)
+        await updateSortOrder(currentColumn.id, currentColumnTaskTitles);
+        
+        // Step 3: Get the real titles of tasks in the target column
+        const targetColumnTaskTitles = targetColumn.items.map(item => item.realTitle);
+        
+        // Step 4: Update the sort order of the target column (adding the task)
+        await updateSortOrder(targetColumn.id, targetColumnTaskTitles);
+        
+        // Step 5: Fetch the task data
+        const taskResult = await fetchTask(taskRealTitle);
+        if (!taskResult.success) {
+            throw new Error(`Failed to fetch task data: ${taskResult.error}`);
+        }
+        
+        // Step 6: Update the task's tags
+        const taskData = taskResult.task;
+        
+        // Parse the tags (space-separated list with entries containing spaces enclosed in double square brackets)
+        let tags = [];
+        if (taskData.tags) {
+            // Match either [[tag with spaces]] or single-word-tag
+            const tagRegex = /\[\[(.*?)\]\]|\S+/g;
+            let match;
+            while ((match = tagRegex.exec(taskData.tags)) !== null) {
+                // If it's a tag with spaces (group 1 will be defined), use that, otherwise use the full match
+                tags.push(match[1] || match[0]);
+            }
+        }
+        
+        // Remove the current column title from tags
+        tags = tags.filter(tag => tag !== currentColumn.id);
+        
+        // Add the target column title to tags if it's not already there
+        if (!tags.includes(targetColumn.id)) {
+            tags.push(targetColumn.id);
+        }
+        
+        // Format the tags back into the required format
+        taskData.tags = tags.map(tag => 
+            tag.includes(' ') ? `[[${tag}]]` : tag
+        ).join(' ');
+        
+        // Step 7: Save the updated task data to the backend
+        const baseUrl = localStorage.getItem('baseUrl');
+        if (!baseUrl) {
+            return { success: false, error: 'Base URL not set' };
+        }
+        
+        const headers = createAuthHeaders();
+        headers.append('Content-Type', 'application/json');
+        headers.append('X-Requested-With', 'TiddlyWiki');
+        
+        const url = `${baseUrl}/recipes/default/tiddlers/${encodeURIComponent(taskRealTitle)}`;
+        const putResponse = await fetch(url, {
+            method: 'PUT',
+            headers: headers,
+            body: JSON.stringify(taskData)
+        });
+        
+        if (!putResponse.ok) {
+            throw new Error(`HTTP Error updating task: ${putResponse.status}`);
+        }
+        
+        return { success: true };
+    } catch (error) {
+        console.error('Failed to move task between columns:', error);
         return { success: false, error: error.message };
     }
 }

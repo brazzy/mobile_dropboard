@@ -206,7 +206,7 @@ function initializeDragAndDrop() {
                     }
                     
                     // Update the data structure to reflect the new order
-                    updateTaskOrderInDataStructure();
+                    updateTaskOrderInDataStructure(true);
                 }
                 
                 // Clean up
@@ -351,7 +351,7 @@ async function saveTaskOrderToServer(column) {
  * Updates the data structure to reflect the new order of tasks after drag and drop
  * This ensures the order persists when switching between columns and saves the order to the server
  */
-function updateTaskOrderInDataStructure() {
+function updateTaskOrderInDataStructure(saveToServer) {
     // Check if columnNavigator exists and is properly initialized
     if (typeof columnNavigator === 'undefined' || !columnNavigator.columns || !columnNavigator.columns.length) {
         console.error('Column navigator not available for updating task order');
@@ -398,6 +398,8 @@ function updateTaskOrderInDataStructure() {
     console.log('Task order updated in data structure for column:', currentColumn.header);
     
     // Save the updated order to the server
-    saveTaskOrderToServer(currentColumn);
+    if(saveToServer){
+        saveTaskOrderToServer(currentColumn);
+    }
 }
 

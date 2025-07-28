@@ -159,15 +159,15 @@ function initializeEditModal() {
         contentDisplay.innerHTML = '<p>Loading content...</p>';
         contentTextarea.value = 'Loading content...';
 
-        // Use the fetchTaskContent function from api.js
+        // Use the fetchTask function from api.js
         const realTitle = item.dataset.realTitle;
-        const result = await fetchTaskContent(realTitle);
+        const result = await fetchTask(realTitle);
         
         if (result.success) {
             // Populate both the display div and the textarea
-            contentDisplay.innerHTML = formatContentToHtml(result.content);
-            contentTextarea.value = result.content;
-            item.dataset.content = result.content;
+            contentDisplay.innerHTML = formatContentToHtml(result.task.text);
+            contentTextarea.value = result.task.text;
+            item.dataset.content = result.task.text;
         } else {
             const errorMsg = `Failed to load content. Error: ${result.error}`;
             contentDisplay.innerHTML = `<p>${errorMsg}</p>`;

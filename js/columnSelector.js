@@ -310,14 +310,11 @@ function moveTaskToColumn(task, targetColumnIndex) {
     if (currentColumnIndex >= 0 && currentColumnIndex < columnNavigator.columns.length) {
         // Only update if we're still on the source column
         if (columnNavigator.currentColumnIndex === currentColumnIndex) {
-            updateTaskOrderInDataStructure();
+            updateTaskOrderInDataStructure(false);
         }
     }
     
-    // If the target column is currently displayed, refresh it
-    if (columnNavigator.currentColumnIndex === targetColumnIndex) {
-        columnNavigator.showCurrentColumn();
-    }
+    moveTaskBetween(targetColumnIndex, taskRealTitle);
 }
 
 // Initialize the column selector when the page is loaded
