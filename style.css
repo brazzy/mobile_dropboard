@@ -338,28 +338,28 @@ body {
 }
 
 /* --- Dialog Modal Styles --- */
-.modal { padding: 20px; border: none; border-radius: 8px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); width: 95%; max-width: 450px; }
+.modal { padding: 15px; border: none; border-radius: 8px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); width: 90%; max-width: 450px; max-height: 90vh; overflow-y: auto; }
 .modal::backdrop { background-color: rgba(0, 0, 0, 0.6); }
 .modal h2 { margin-top: 0; }
-.modal-field { margin-bottom: 15px; }
+.modal-field { margin-bottom: 10px; }
 .modal-field label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
 .modal-field input, .modal-field textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; font-size: 1rem; box-sizing: border-box; }
-.modal-field textarea { min-height: 120px; resize: vertical; }
-.modal-actions { text-align: right; }
+.modal-field textarea { min-height: 80px; max-height: 30vh; resize: vertical; }
+.modal-actions { text-align: right; display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
 .modal-actions-hidden, .modal-content-hidden { display: none; }
-.modal-actions button { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem; margin-left: 10px; }
+.modal-actions button { padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem; margin: 0; flex: 0 1 auto; min-width: 80px; }
 .modal-note { font-size: 0.8rem; color: #6c757d; margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px; }
 
 /* --- Edit Dialog Specific Styles --- */
-#edit-modal { max-width: 95%; }
+#edit-modal { max-width: 95%; display: flex; flex-direction: column; }
 #modal-save-btn { background-color: #007bff; color: white; }
 #modal-save-btn:hover { background-color: #0069d9; }
 
 /* NEW: Styles for the formatted content display */
 #modal-content-display {
     width: 100%;
-    min-height: 200px;
-    max-height: 50vh;
+    min-height: 100px;
+    max-height: 30vh;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -369,7 +369,7 @@ body {
     box-sizing: border-box;
     overflow-y: auto;
 }
-#edit-modal #modal-content-textarea { min-height: 200px; max-height: 50vh; }
+#edit-modal #modal-content-textarea { min-height: 100px; max-height: 30vh; }
 
 /* NEW: Styles for generated markdown elements */
 #modal-content-display h1, #modal-content-display h2, #modal-content-display h3, #modal-content-display h4, #modal-content-display h5, #modal-content-display h6 {
@@ -381,4 +381,14 @@ body {
 #modal-content-display ul {
     margin: 0 0 1em 0;
     padding-left: 20px;
+}
+
+/* Responsive styles for small screens */
+@media screen and (max-width: 480px) {
+    .modal { padding: 12px; width: 95%; }
+    .modal h2 { font-size: 1.2rem; margin-bottom: 10px; }
+    .modal-field label { font-size: 0.9rem; margin-bottom: 3px; }
+    .modal-field input, .modal-field textarea { padding: 8px; font-size: 0.95rem; }
+    .modal-actions button { padding: 8px 12px; font-size: 0.95rem; }
+    #modal-content-display, #edit-modal #modal-content-textarea { max-height: 25vh; }
 }
