@@ -149,6 +149,19 @@ function switchBoard(boardName) {
     const currentColumn = document.getElementById('current-column');
     currentColumn.innerHTML = `<p id="column-message">Loading board: ${boardName}...</p>`;
     
+    // Clear the column indicator
+    const columnIndicator = document.getElementById('column-indicator');
+    if (columnIndicator) {
+        columnIndicator.innerHTML = '';
+    }
+    
+    // Reset the column navigator if it exists
+    if (typeof columnNavigator !== 'undefined' && columnNavigator) {
+        // Clear the columns array
+        columnNavigator.columns = [];
+        columnNavigator.currentColumnIndex = 0;
+    }
+    
     // Reinitialize the app with the new board
     initializeApp(boardName);
 }
