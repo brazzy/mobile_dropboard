@@ -183,24 +183,6 @@ function initializeEditModal() {
     dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });
     document.getElementById('modal-edit-btn').addEventListener('click', () => setEditModalState('edit'));
     
-    // Add event listener to save title changes as they happen
-    titleInput.addEventListener('input', () => {
-        if (editModalState.currentEditingItem && !editModalState.isNewTask) {
-            const newTitle = titleInput.value.trim();
-            
-            // Update the item's dataset
-            editModalState.currentEditingItem.dataset.title = newTitle;
-            
-            // Update the displayed title in the content wrapper
-            const contentWrapper = editModalState.currentEditingItem.querySelector('.content-wrapper');
-            if (contentWrapper) {
-                contentWrapper.textContent = newTitle;
-            }
-            
-            // Update the title in the board data structure
-            updateTaskTitleInDataStructure(editModalState.currentEditingItem, newTitle);
-        }
-    });
     document.getElementById('modal-close-btn').addEventListener('click', () => {
         dialog.close();
         // Reset state after closing
@@ -237,8 +219,13 @@ function initializeEditModal() {
         
         if (editModalState.currentEditingItem) {
             // Editing an existing task
+            const oldRealTitle = editModalState.currentEditingItem.dataset.realTitle;
+            if(editModalState.currentEditingItem.dataset.realTitle == editModalState.currentEditingItem.dataset.title) {
+                editModalState.currentEditingItem.dataset.realTitle = title;                
+            }
             editModalState.currentEditingItem.dataset.title = title;
             editModalState.currentEditingItem.dataset.content = content;
+            updateTaskTitleInDataStructure(editModalState.currentEditingItem, title);
             
             // Ensure proper structure is maintained for styling
             // Clear existing content first
@@ -259,6 +246,9 @@ function initializeEditModal() {
 
             // Update the display div with the new formatted content before closing
             contentDisplay.innerHTML = formatContentToHtml(content);
+            
+            // Update the task on the server
+            updateTask(oldRealTitle, title, content);
         } else if (editModalState.isNewTask && editModalState.targetListId) {
             // Creating a new task
             const targetList = document.getElementById(editModalState.targetListId);

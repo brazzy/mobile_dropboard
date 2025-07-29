@@ -253,6 +253,79 @@ async function updateSortOrder(column) {
     }
 }
 
+
+/**
+ * Updates a task on the server
+ * @param {string} realTitle - The unique identifier for the task
+ * @param {string} title - The title of the task
+ * @param {string} text - The content of the task
+ * @returns {Promise<Object>} - Object containing status information
+ */
+async function updateTask(realTitle, title, text) {
+    const baseUrl = localStorage.getItem('baseUrl');
+    const headers = createAuthHeaders();
+    headers.append('Content-Type', 'application/json');
+    headers.append('X-Requested-With', 'TiddlyWiki');
+    
+    try {
+        // First check if the task already exists
+        const taskData = await fetchTask(realTitle);
+        
+        // If the task does not exist, return an error
+        if (!taskData.success) {
+            return { success: false, error: `Task with title "${realTitle}" does not exist.` };
+        }
+        const taskHasShorttext = taskData.task.fields && taskData.task.fields.shorttext;
+        const titleChanged = !taskHasShorttext && realTitle != title;
+        const newTitle = titleChanged ? title : realTitle;
+        const oldTitle = realTitle;
+        
+        // Update the task data
+        const currentTimestamp = new Date().getTime();
+        taskData.task.modified = currentTimestamp;
+        taskData.task.text = text;
+        taskData.task.title = newTitle
+        if(taskHasShorttext && taskData.task.fields.shorttext !== title) {
+            taskData.task.fields.shorttext = title;
+        }
+        
+      
+        // Send the task data to the server
+        const url = `${baseUrl}/recipes/default/tiddlers/${encodeURIComponent(newTitle)}`;
+        const putResponse = await fetch(url, {
+            method: 'PUT',
+            headers: headers,
+            body: JSON.stringify(taskData.task)
+        });
+        
+        if (!putResponse.ok) throw new Error(`HTTP Error creating task: ${putResponse.status}`);
+        
+        if(titleChanged) {
+            const deleteUrl = `${baseUrl}/bags/default/tiddlers/${encodeURIComponent(oldTitle)}`;
+            const deleteResponse = await fetch(deleteUrl, {
+                method: 'DELETE',
+                headers: headers
+            });
+            
+            if (!deleteResponse.ok) throw new Error(`HTTP Error deleting old task: ${deleteResponse.status}`);
+
+            const column = columnNavigator.columns[columnNavigator.currentColumnIndex];
+            column.items.forEach(item => {
+                if(item.realTitle === oldTitle) {
+                    item.displayTitle = newTitle;
+                    item.realTitle = newTitle;
+                }
+            });
+            updateSortOrder(column);
+        }
+        
+        return { success: true };
+    } catch (error) {
+        console.error('Failed to store task:', error);
+        return { success: false, error: error.message };
+    }
+}
+
 /**
  * Stores a new task to the server
  * @param {string} realTitle - The unique identifier for the task
