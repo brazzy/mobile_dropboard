@@ -135,17 +135,11 @@ async function moveTaskBetween(targetColumnIndex, taskRealTitle) {
     }
     
     try {
-        // Step 1: Get the real titles of tasks in the current column
-        const currentColumnTaskTitles = currentColumn.items.map(item => item.realTitle);
-        
         // Step 2: Update the sort order of the current column (removing the task)
-        await updateSortOrder(currentColumn.id, currentColumnTaskTitles);
-        
-        // Step 3: Get the real titles of tasks in the target column
-        const targetColumnTaskTitles = targetColumn.items.map(item => item.realTitle);
+        await updateSortOrder(currentColumn);
         
         // Step 4: Update the sort order of the target column (adding the task)
-        await updateSortOrder(targetColumn.id, targetColumnTaskTitles);
+        await updateSortOrder(targetColumn);
         
         // Step 5: Fetch the task data
         const taskResult = await fetchTask(taskRealTitle);
@@ -215,7 +209,9 @@ async function moveTaskBetween(targetColumnIndex, taskRealTitle) {
  * @param {string[]} taskTitles - Array of task titles in the desired order
  * @returns {Promise<Object>} - Object containing status information
  */
-async function updateSortOrder(columnTitle, taskTitles) {
+async function updateSortOrder(column) {
+    const taskTitles = column.items.map(item => item.realTitle);
+    const columnTitle = column.id;
     const baseUrl = localStorage.getItem('baseUrl');
     if (!baseUrl || !columnTitle) {
         return { success: false, error: 'Error: Missing configuration or column title.' };
@@ -253,6 +249,65 @@ async function updateSortOrder(columnTitle, taskTitles) {
         return { success: true };
     } catch (error) {
         console.error('Failed to update sort order:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+/**
+ * Stores a new task to the server
+ * @param {string} realTitle - The unique identifier for the task
+ * @param {string} title - The title of the task
+ * @param {string} text - The content of the task
+ * @param {Column} column - The column where the task will be stored
+ * @returns {Promise<Object>} - Object containing status information
+ */
+async function storeNewTask(realTitle, title, text, column) {
+    const baseUrl = localStorage.getItem('baseUrl');
+    const headers = createAuthHeaders();
+    headers.append('Content-Type', 'application/json');
+    headers.append('X-Requested-With', 'TiddlyWiki');
+    
+    try {
+        // First check if the task already exists
+        const checkResponse = await fetchTask(realTitle);
+        
+        // If the task exists, return an error
+        if (checkResponse.success) {
+            return { success: false, error: `Task with title "${realTitle}" already exists.` };
+        }
+        
+        // Create the task data
+        const currentTimestamp = new Date().getTime();
+        let columnTitle = column.id;
+        if(columnTitle.includes(' ')) {
+            columnTitle = `[[${columnTitle}]]`;
+        }
+        const taskData = {
+            bag: "default",
+            type: "text/vnd.tiddlywiki",
+            title: realTitle,
+            text: text,
+            tags: columnTitle,
+            modified: currentTimestamp,
+            created: currentTimestamp,
+            fields: {
+                shorttext: title
+            }
+        };
+        
+        // Send the task data to the server
+        const url = `${baseUrl}/recipes/default/tiddlers/${encodeURIComponent(realTitle)}`;
+        const putResponse = await fetch(url, {
+            method: 'PUT',
+            headers: headers,
+            body: JSON.stringify(taskData)
+        });
+        
+        if (!putResponse.ok) throw new Error(`HTTP Error creating task: ${putResponse.status}`);
+        
+        return updateSortOrder(column);
+    } catch (error) {
+        console.error('Failed to store task:', error);
         return { success: false, error: error.message };
     }
 }

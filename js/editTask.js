@@ -265,11 +265,12 @@ function initializeEditModal() {
             if (targetList) {
                 // Create a new item element directly here
                 const item = document.createElement('li');
+                const randomId = Array.from({ length: 10 }, () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'.charAt(Math.floor(Math.random() * 62))).join('');
                 item.className = 'sortable-item';
-                item.dataset.id = `item-${Date.now()}-${Math.random()}`;
+                item.dataset.id = `item-` + randomId;
                 item.dataset.title = title;
                 item.dataset.content = content;
-                item.dataset.realTitle = `New-${Date.now()}`; // Add a realTitle for consistency
+                item.dataset.realTitle = `tid/${randomId}`;
                 
                 // Create proper structure with content-wrapper
                 const contentWrapper = document.createElement('div');
@@ -291,6 +292,7 @@ function initializeEditModal() {
                 
                 // Add the new task to the data structure
                 addNewTaskToDataStructure(item.dataset.realTitle, title, content);
+                storeNewTask(item.dataset.realTitle, title, content, columnNavigator.columns[columnNavigator.currentColumnIndex]);
             }
         }
         
