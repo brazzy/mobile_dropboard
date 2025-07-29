@@ -316,38 +316,6 @@ function setupMutationObserver() {
 }
 
 /**
- * Saves the updated task order to the server
- * @param {Object} column - The column object containing the tasks
- */
-async function saveTaskOrderToServer(column) {
-    if (!column || !column.id || !column.items || !column.items.length) {
-        console.error('Invalid column data for saving task order');
-        return;
-    }
-    
-    try {
-        // Extract the real titles of tasks in their current order
-        const taskTitles = column.items.map(item => item.realTitle).filter(title => title);
-        
-        if (!taskTitles.length) {
-            console.warn('No task titles found to update sort order');
-            return;
-        }
-        
-        // Call the API function to update the sort order on the server
-        const result = await updateSortOrder(column.id, taskTitles);
-        
-        if (result.success) {
-            console.log(`Sort order successfully saved to server for column: ${column.id}`);
-        } else {
-            console.error(`Failed to save sort order to server: ${result.error}`);
-        }
-    } catch (error) {
-        console.error('Error saving task order to server:', error);
-    }
-}
-
-/**
  * Updates the data structure to reflect the new order of tasks after drag and drop
  * This ensures the order persists when switching between columns and saves the order to the server
  */
@@ -399,7 +367,7 @@ function updateTaskOrderInDataStructure(saveToServer) {
     
     // Save the updated order to the server
     if(saveToServer){
-        saveTaskOrderToServer(currentColumn);
+        updateSortOrder(currentColumn);
     }
 }
 
