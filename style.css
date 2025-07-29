@@ -351,7 +351,8 @@ body {
 .modal-note { font-size: 0.8rem; color: #6c757d; margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px; }
 
 /* --- Edit Dialog Specific Styles --- */
-#edit-modal { max-width: 95%; display: flex; flex-direction: column; }
+#edit-modal { max-width: 95%; }
+#edit-modal:modal { display: flex; flex-direction: column; }
 #modal-save-btn { background-color: #007bff; color: white; }
 #modal-save-btn:hover { background-color: #0069d9; }
 
