@@ -326,6 +326,27 @@ async function updateTask(realTitle, title, text) {
     }
 }
 
+async function deleteTask(realTitle) {
+    const baseUrl = localStorage.getItem('baseUrl');
+    const headers = createAuthHeaders();
+    headers.append('X-Requested-With', 'TiddlyWiki');
+
+    try {
+        const url = `${baseUrl}/bags/default/tiddlers/${encodeURIComponent(realTitle)}`;
+        const deleteResponse = await fetch(url, {
+            method: 'DELETE',
+            headers: headers
+        });
+        
+        if (!deleteResponse.ok) throw new Error(`HTTP Error deleting task: ${deleteResponse.status}`);
+        
+        return { success: true };
+    } catch (error) {
+        console.error('Failed to delete task:', error);
+        return { success: false, error: error.message };
+    }
+}
+
 /**
  * Stores a new task to the server
  * @param {string} realTitle - The unique identifier for the task

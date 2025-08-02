@@ -355,6 +355,8 @@ body {
 #edit-modal:modal { display: flex; flex-direction: column; }
 #modal-save-btn { background-color: #007bff; color: white; }
 #modal-save-btn:hover { background-color: #0069d9; }
+#modal-delete-btn { background-color: #dc3545; color: white; margin-right: auto; }
+#modal-delete-btn:hover { background-color: #c82333; }
 
 /* NEW: Styles for the formatted content display */
 #modal-content-display {

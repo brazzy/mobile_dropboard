@@ -134,6 +134,44 @@ function updateTaskTitleInDataStructure(taskElement, newTitle) {
     }
 }
 
+/**
+ * Shows a confirmation dialog and returns a promise that resolves to true if confirmed
+ * @param {string} message - The message to display in the confirmation dialog
+ * @returns {Promise<boolean>} - Promise resolving to true if confirmed, false otherwise
+ */
+function showConfirmationDialog(message) {
+    return new Promise((resolve) => {
+        const confirmed = window.confirm(message);
+        resolve(confirmed);
+    });
+}
+
+/**
+ * Removes a task from the data structure and the DOM
+ * @param {string} realTitle - The unique identifier for the task
+ * @param {HTMLElement} taskElement - The task element to remove
+ */
+function removeTaskFromDataStructure(realTitle, taskElement) {
+    // Get the current column
+    const currentColumn = columnNavigator.columns[columnNavigator.currentColumnIndex];
+    
+    // Find the task in the column's items array
+    const taskIndex = currentColumn.items.findIndex(item => item.realTitle === realTitle);
+    
+    if (taskIndex !== -1) {
+        // Remove the task from the data structure
+        currentColumn.items.splice(taskIndex, 1);
+        console.log('Task removed from data structure:', realTitle);
+        
+        // Remove the task element from the DOM
+        if (taskElement && taskElement.parentNode) {
+            taskElement.parentNode.removeChild(taskElement);
+        }
+    } else {
+        console.error('Task not found in data structure');
+    }
+}
+
 function initializeEditModal() {
     const dialog = document.getElementById('edit-modal');
     const titleInput = document.getElementById('modal-title-input');
@@ -189,6 +227,38 @@ function initializeEditModal() {
         editModalState.currentEditingItem = null;
         editModalState.targetListId = null;
         editModalState.isNewTask = false;
+    });
+    
+    document.getElementById('modal-delete-btn').addEventListener('click', async () => {
+        if (!editModalState.currentEditingItem) return;
+        
+        const realTitle = editModalState.currentEditingItem.dataset.realTitle;
+        const displayTitle = editModalState.currentEditingItem.dataset.title || 'this task';
+        
+        // Show confirmation dialog
+        const confirmed = await showConfirmationDialog(`Are you sure you want to delete "${displayTitle}"?`);
+        
+        if (confirmed) {
+            // Call the deleteTask function from api.js
+            const result = await deleteTask(realTitle);
+            
+            if (result.success) {
+                // Remove from data structure and DOM
+                removeTaskFromDataStructure(realTitle, editModalState.currentEditingItem);
+                updateSortOrder(columnNavigator.columns[columnNavigator.currentColumnIndex]);
+                
+                // Close the dialog
+                dialog.close();
+                
+                // Reset state after closing
+                editModalState.currentEditingItem = null;
+                editModalState.targetListId = null;
+                editModalState.isNewTask = false;
+            } else {
+                // Show error message
+                alert(`Failed to delete task: ${result.error}`);
+            }
+        }
     });
     document.getElementById('modal-cancel-btn').addEventListener('click', () => {
         // When cancelling, revert to view mode without saving
