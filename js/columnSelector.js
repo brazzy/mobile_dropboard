@@ -314,7 +314,14 @@ function moveTaskToColumn(task, targetColumnIndex) {
         }
     }
     
-    moveTaskBetween(targetColumnIndex, taskRealTitle);
+    try {
+        // Move the task between columns using the API function
+        moveTaskBetween(targetColumnIndex, taskRealTitle);
+    } catch (error) {
+        console.error('Error moving task between columns:', error);
+        // Show error to user
+        alert(`Failed to move task: ${error.message}`);
+    }
 }
 
 // Initialize the column selector when the page is loaded

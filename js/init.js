@@ -12,21 +12,16 @@ async function initializeApp(boardName) {
         document.getElementById('column-message').textContent = 'Fetching board data...';
         
         // Fetch board data from API
-        const result = await fetchBoardData(boardName);
-        
-        if (!result.success) {
-            document.getElementById('column-message').innerHTML = `Error: ${result.error}`;
-            return;
-        }
+        const columnData = await fetchBoardData(boardName);
         
         // Initialize swipe navigation
         initializeSwipeNavigation();
         
         // Set the columns data for navigation
-        setNavigationColumns(result.data);
+        setNavigationColumns(columnData);
         
     } catch (error) {
-        document.getElementById('column-message').textContent = `Failed to initialize columns: ${error.message}`;
+        document.getElementById('column-message').textContent = `Error: ${error.message}`;
         console.error('Initialization Error:', error);
     }
 }

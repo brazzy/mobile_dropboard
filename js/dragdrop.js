@@ -367,7 +367,13 @@ function updateTaskOrderInDataStructure(saveToServer) {
     
     // Save the updated order to the server
     if(saveToServer){
-        updateSortOrder(currentColumn);
+        try {
+            updateSortOrder(currentColumn);
+        } catch (error) {
+            console.error('Error updating sort order:', error);
+            // Optionally show an error message to the user
+            // alert(`Failed to save task order: ${error.message}`);
+        }
     }
 }
 

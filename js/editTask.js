@@ -197,19 +197,20 @@ function initializeEditModal() {
         contentDisplay.innerHTML = '<p>Loading content...</p>';
         contentTextarea.value = 'Loading content...';
 
-        // Use the fetchTask function from api.js
-        const realTitle = item.dataset.realTitle;
-        const result = await fetchTask(realTitle);
-        
-        if (result.success) {
+        try {
+            // Use the fetchTask function from api.js
+            const realTitle = item.dataset.realTitle;
+            const taskData = await fetchTask(realTitle);
+            
             // Populate both the display div and the textarea
-            contentDisplay.innerHTML = formatContentToHtml(result.task.text);
-            contentTextarea.value = result.task.text;
-            item.dataset.content = result.task.text;
-        } else {
-            const errorMsg = `Failed to load content. Error: ${result.error}`;
+            contentDisplay.innerHTML = formatContentToHtml(taskData.text);
+            contentTextarea.value = taskData.text;
+            item.dataset.content = taskData.text;
+        } catch (error) {
+            const errorMsg = `Failed to load content. Error: ${error.message}`;
             contentDisplay.innerHTML = `<p>${errorMsg}</p>`;
             contentTextarea.value = errorMsg;
+            console.error('Error fetching task:', error);
         }
     }
 
@@ -239,13 +240,13 @@ function initializeEditModal() {
         const confirmed = await showConfirmationDialog(`Are you sure you want to delete "${displayTitle}"?`);
         
         if (confirmed) {
-            // Call the deleteTask function from api.js
-            const result = await deleteTask(realTitle);
-            
-            if (result.success) {
+            try {
+                // Call the deleteTask function from api.js
+                await deleteTask(realTitle);
+                
                 // Remove from data structure and DOM
                 removeTaskFromDataStructure(realTitle, editModalState.currentEditingItem);
-                updateSortOrder(columnNavigator.columns[columnNavigator.currentColumnIndex]);
+                await updateSortOrder(columnNavigator.columns[columnNavigator.currentColumnIndex]);
                 
                 // Close the dialog
                 dialog.close();
@@ -254,9 +255,10 @@ function initializeEditModal() {
                 editModalState.currentEditingItem = null;
                 editModalState.targetListId = null;
                 editModalState.isNewTask = false;
-            } else {
+            } catch (error) {
                 // Show error message
-                alert(`Failed to delete task: ${result.error}`);
+                alert(`Failed to delete task: ${error.message}`);
+                console.error('Error deleting task:', error);
             }
         }
     });
@@ -272,7 +274,7 @@ function initializeEditModal() {
         }
         editModalState.currentEditingItem = null;
     });
-    document.getElementById('modal-save-btn').addEventListener('click', () => {
+    document.getElementById('modal-save-btn').addEventListener('click', async () => {
         const title = titleInput.value.trim();
         const content = contentTextarea.value; // No trim on content
         const modalError = document.getElementById('modal-error');
@@ -287,50 +289,20 @@ function initializeEditModal() {
         // Hide error message if it was previously shown
         modalError.style.display = 'none';
         
-        if (editModalState.currentEditingItem) {
-            // Editing an existing task
-            const oldRealTitle = editModalState.currentEditingItem.dataset.realTitle;
-            if(editModalState.currentEditingItem.dataset.realTitle == editModalState.currentEditingItem.dataset.title) {
-                editModalState.currentEditingItem.dataset.realTitle = title;                
-            }
-            editModalState.currentEditingItem.dataset.title = title;
-            editModalState.currentEditingItem.dataset.content = content;
-            updateTaskTitleInDataStructure(editModalState.currentEditingItem, title);
-            
-            // Ensure proper structure is maintained for styling
-            // Clear existing content first
-            editModalState.currentEditingItem.innerHTML = '';
-            
-            // Create proper structure with content-wrapper
-            const contentWrapper = document.createElement('div');
-            contentWrapper.className = 'content-wrapper';
-            contentWrapper.textContent = title;
-            
-            // Add drag handle
-            const dragHandle = document.createElement('div');
-            dragHandle.className = 'drag-handle';
-            
-            // Add elements to the item
-            editModalState.currentEditingItem.appendChild(dragHandle);
-            editModalState.currentEditingItem.appendChild(contentWrapper);
-
-            // Update the display div with the new formatted content before closing
-            contentDisplay.innerHTML = formatContentToHtml(content);
-            
-            // Update the task on the server
-            updateTask(oldRealTitle, title, content);
-        } else if (editModalState.isNewTask && editModalState.targetListId) {
-            // Creating a new task
-            const targetList = document.getElementById(editModalState.targetListId);
-            if (targetList) {
-                // Create a new item element directly here
-                const item = document.createElement('li');
-                const randomId = Array.from({ length: 10 }, () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'.charAt(Math.floor(Math.random() * 62))).join('');
-                item.className = 'sortable-item';
-                item.dataset.id = `item-` + randomId;
-                item.dataset.title = title;
-                item.dataset.content = content;
-                item.dataset.realTitle = `tid/${randomId}`;
+        try {
+            if (editModalState.currentEditingItem) {
+                // Editing an existing task
+                const oldRealTitle = editModalState.currentEditingItem.dataset.realTitle;
+                if(editModalState.currentEditingItem.dataset.realTitle == editModalState.currentEditingItem.dataset.title) {
+                    editModalState.currentEditingItem.dataset.realTitle = title;                
+                }
+                editModalState.currentEditingItem.dataset.title = title;
+                editModalState.currentEditingItem.dataset.content = content;
+                updateTaskTitleInDataStructure(editModalState.currentEditingItem, title);
+                
+                // Ensure proper structure is maintained for styling
+                // Clear existing content first
+                editModalState.currentEditingItem.innerHTML = '';
                 
                 // Create proper structure with content-wrapper
                 const contentWrapper = document.createElement('div');
@@ -342,24 +314,66 @@ function initializeEditModal() {
                 dragHandle.className = 'drag-handle';
                 
                 // Add elements to the item
-                item.appendChild(dragHandle);
-                item.appendChild(contentWrapper);
+                editModalState.currentEditingItem.appendChild(dragHandle);
+                editModalState.currentEditingItem.appendChild(contentWrapper);
+
+                // Update the display div with the new formatted content before closing
+                contentDisplay.innerHTML = formatContentToHtml(content);
                 
-                targetList.prepend(item);
+                // Update the task on the server
+                const result = await updateTask(oldRealTitle, title, content);
                 
-                // The item will be made draggable by the interact.js library
-                // since it has the 'sortable-item' class
-                
-                // Add the new task to the data structure
-                addNewTaskToDataStructure(item.dataset.realTitle, title, content);
-                storeNewTask(item.dataset.realTitle, title, content, columnNavigator.columns[columnNavigator.currentColumnIndex]);
+                // If the title changed and we got a new title back, update it
+                if (result && result.newTitle) {
+                    editModalState.currentEditingItem.dataset.realTitle = result.newTitle;
+                }
+            } else if (editModalState.isNewTask && editModalState.targetListId) {
+                // Creating a new task
+                const targetList = document.getElementById(editModalState.targetListId);
+                if (targetList) {
+                    // Create a new item element directly here
+                    const item = document.createElement('li');
+                    const randomId = Array.from({ length: 10 }, () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'.charAt(Math.floor(Math.random() * 62))).join('');
+                    item.className = 'sortable-item';
+                    item.dataset.id = `item-` + randomId;
+                    item.dataset.title = title;
+                    item.dataset.content = content;
+                    item.dataset.realTitle = `tid/${randomId}`;
+                    
+                    // Create proper structure with content-wrapper
+                    const contentWrapper = document.createElement('div');
+                    contentWrapper.className = 'content-wrapper';
+                    contentWrapper.textContent = title;
+                    
+                    // Add drag handle
+                    const dragHandle = document.createElement('div');
+                    dragHandle.className = 'drag-handle';
+                    
+                    // Add elements to the item
+                    item.appendChild(dragHandle);
+                    item.appendChild(contentWrapper);
+                    
+                    targetList.prepend(item);
+                    
+                    // The item will be made draggable by the interact.js library
+                    // since it has the 'sortable-item' class
+                    
+                    // Add the new task to the data structure
+                    addNewTaskToDataStructure(item.dataset.realTitle, title, content);
+                    await storeNewTask(item.dataset.realTitle, title, content, columnNavigator.columns[columnNavigator.currentColumnIndex]);
+                }
             }
+            
+            dialog.close();
+            // Reset state after closing
+            editModalState.currentEditingItem = null;
+            editModalState.targetListId = null;
+            editModalState.isNewTask = false;
+        } catch (error) {
+            // Show error message
+            modalError.textContent = `Error saving task: ${error.message}`;
+            modalError.style.display = 'block';
+            console.error('Error saving task:', error);
         }
-        
-        dialog.close();
-        // Reset state after closing
-        editModalState.currentEditingItem = null;
-        editModalState.targetListId = null;
-        editModalState.isNewTask = false;
     });
 }
