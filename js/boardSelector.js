@@ -17,8 +17,16 @@ const availableBoards = [
  * Initialize the board selector functionality
  */
 function initializeBoardSelector() {
-    // Choose the initial board name
-    currentBoardName = availableBoards[0];
+    // Check for board parameter in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const boardParam = urlParams.get('board');
+    
+    // Choose the initial board name - use URL parameter if it exists and is in the available boards list
+    if (boardParam && availableBoards.includes(boardParam)) {
+        currentBoardName = boardParam;
+    } else {
+        currentBoardName = availableBoards[0];
+    }
 
     console.log('Initializing board selector for: ' + currentBoardName);    
     
